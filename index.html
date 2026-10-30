@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GMAT Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F8F5FC;--surface:#FFFFFF;--sunk:#FBF9FE;--ink:#3B3654;--muted:#7D7793;--line:#E7E1F0;
+  --accent:#C9BAF2;--accent-ink:#2E2747;--accent-line:#8E78D6;
+  --sq:#CFE4FA;--sv:#F9D5E1;--sd:#CDEFE0;--p3:#FDE2CC;--p4:#E4D7F7;--gap:#ECEEF3;
+  --brk:#F4C3D4;--buf:#FBEFBF;--fin:#CDEDED;
+  --on:#2F7D58;--risk:#8F6118;--behind:#A8475F;
+  --on-bg:#DDF3E7;--risk-bg:#FCEFD3;--behind-bg:#FBDDE5;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1C1A26;--surface:#24212F;--sunk:#201E2A;--ink:#EDE9F7;--muted:#A9A3BC;--line:#36324A;
+    --accent:#B9A7EC;--accent-ink:#1C1A26;--accent-line:#B9A7EC;
+    --sq:#3A5470;--sv:#6A4155;--sd:#355E4D;--p3:#6B5038;--p4:#4D4170;--gap:#2C2939;
+    --brk:#7A4A5E;--buf:#6A5E35;--fin:#355E5E;
+    --on:#8FD9B3;--risk:#F0C987;--behind:#F2A0B4;
+    --on-bg:#23392F;--risk-bg:#3D3220;--behind-bg:#45262F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1C1A26;--surface:#24212F;--sunk:#201E2A;--ink:#EDE9F7;--muted:#A9A3BC;--line:#36324A;
+  --accent:#B9A7EC;--accent-ink:#1C1A26;--accent-line:#B9A7EC;
+  --sq:#3A5470;--sv:#6A4155;--sd:#355E4D;--p3:#6B5038;--p4:#4D4170;--gap:#2C2939;
+  --brk:#7A4A5E;--buf:#6A5E35;--fin:#355E5E;
+  --on:#8FD9B3;--risk:#F0C987;--behind:#F2A0B4;
+  --on-bg:#23392F;--risk-bg:#3D3220;--behind-bg:#45262F;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Nunito,system-ui,-apple-system,"Segoe UI",sans-serif}
+h1,h2,h3{font-family:Fredoka,Nunito,system-ui,sans-serif;font-weight:600;line-height:1.15;margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1060px;margin:0 auto;padding:20px 18px 64px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.brand h1{font-size:1.6rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:.92rem}
+.acct{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 16px 5px 5px;font-size:.88rem}
+.acct img{width:30px;height:30px;border-radius:50%}
+.acct small{display:block;color:var(--muted);font-size:.78rem;line-height:1.2}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px;background:var(--muted)}
+.dot.ok{background:var(--on)}.dot.busy{background:var(--risk)}.dot.err{background:var(--behind)}
+nav.tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 18px;padding-bottom:4px}
+nav.tabs a{padding:8px 15px;text-decoration:none;color:var(--muted);font-weight:700;font-size:.93rem;border-radius:999px;white-space:nowrap;background:transparent}
+nav.tabs a[aria-current="page"]{color:var(--accent-ink);background:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent-line);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:20px}
+.grid{display:grid;gap:16px}
+@media(min-width:820px){.g2{grid-template-columns:1.35fr 1fr}.g2e{grid-template-columns:1fr 1fr}}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.mb{margin-bottom:16px}
+.count{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 28px;margin-bottom:18px}
+.count .days{font-family:Fredoka,sans-serif;font-weight:600;font-size:clamp(3rem,9vw,4.4rem);line-height:.9}
+.count .days span{font-size:1rem;font-weight:600;color:var(--muted);margin-left:8px;font-family:Nunito,sans-serif}
+.facts{display:flex;flex-wrap:wrap;gap:8px 26px;font-size:.92rem;color:var(--muted)}
+.facts b{display:block;font-size:1.05rem;color:var(--ink)}
+.pill{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:800;font-size:.85rem}
+.pill.on{background:var(--on-bg);color:var(--on)}.pill.risk{background:var(--risk-bg);color:var(--risk)}.pill.behind{background:var(--behind-bg);color:var(--behind)}.pill.idle{background:var(--gap);color:var(--muted)}
+.ribbon{position:relative;margin:24px 0 30px}
+.bar{display:flex;height:34px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.seg{height:100%;min-width:2px}
+.seg.sq{background:var(--sq)}.seg.sv{background:var(--sv)}.seg.sd{background:var(--sd)}.seg.p3{background:var(--p3)}.seg.p4{background:var(--p4)}.seg.gap{background:var(--gap)}
+.seg.break{background:repeating-linear-gradient(135deg,var(--brk) 0 6px,var(--surface) 6px 11px)}
+.seg.buffer{background:repeating-linear-gradient(90deg,var(--buf) 0 3px,var(--surface) 3px 6px)}
+.seg.final{background:var(--fin)}
+.done-shade{position:absolute;left:0;top:0;height:34px;background:var(--ink);opacity:.08;border-radius:12px 0 0 12px;pointer-events:none}
+.today-mark{position:absolute;top:-6px;height:46px;width:3px;background:var(--accent-line);border-radius:2px}
+.today-mark span{position:absolute;top:-21px;left:50%;transform:translateX(-50%);font-size:.75rem;font-weight:800;white-space:nowrap;color:var(--accent-line)}
+.months{position:relative;height:18px;font-size:.75rem;color:var(--muted)}
+.months span{position:absolute;top:4px;border-left:1px solid var(--line);padding-left:4px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin-top:4px}
+.legend i{display:inline-block;width:13px;height:13px;border-radius:4px;margin-right:5px;vertical-align:-2px;border:1px solid var(--line)}
+.focus h2{font-size:1.3rem;margin-bottom:4px}
+.focus .topic{font-size:1.15rem;font-weight:800;margin:4px 0 14px}
+.focus .topic .sec{color:var(--muted);font-weight:600}
+.tasks{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.task{display:flex;gap:12px;align-items:flex-start;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:var(--sunk)}
+.task.done{opacity:.6}
+.task.done .tl{text-decoration:line-through}
+.chk{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid var(--accent-line);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0;margin-top:1px;font-weight:800}
+.chk.on{background:var(--accent);color:var(--accent-ink)}
+.tl{font-weight:700}
+.tsub{font-size:.85rem;color:var(--muted)}
+.inline-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+.prog{margin-top:16px;padding-top:12px;border-top:1px dashed var(--line);font-size:.92rem;display:grid;gap:2px}
+.note{padding:12px 15px;border-radius:14px;font-size:.92rem;margin-bottom:14px}
+.note.info{background:var(--sunk);border:1px solid var(--line)}
+.note.risk{background:var(--risk-bg)}.note.behind{background:var(--behind-bg)}.note.on{background:var(--on-bg)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 16px;font-weight:700;cursor:pointer}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.ghost{background:transparent}
+.btn.danger{color:var(--behind)}
+.btn.sm{padding:4px 11px;font-size:.84rem}
+input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:7px 10px;max-width:100%}
+input[type=number]{width:92px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent-line);vertical-align:-3px}
+label.f{display:grid;gap:4px;font-size:.88rem;font-weight:700}
+label.f span{font-weight:400;color:var(--muted)}
+label.c{display:inline-flex;gap:8px;align-items:center;font-size:.92rem;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+h3{font-size:1.12rem;margin-bottom:10px}
+h4{margin:18px 0 8px;font-size:.98rem}
+.days-list{display:grid;gap:8px}
+.dayrow{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:10px 13px;border-radius:14px;background:var(--sunk);border:1px solid var(--line)}
+.dayrow.today{border-color:var(--accent-line);border-width:2px}
+.dayrow .dt{font-size:.85rem;color:var(--muted)}
+.dayrow .dt b{display:block;color:var(--ink);font-size:.95rem}
+.chip{display:inline-block;font-size:.76rem;font-weight:800;padding:1px 9px;border-radius:999px;margin-right:6px;color:var(--ink)}
+.chip.Quant{background:var(--sq)}.chip.Verbal{background:var(--sv)}.chip.DI{background:var(--sd)}.chip.rev{background:var(--p3)}.chip.mock{background:var(--p4)}.chip.other{background:var(--gap)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:700;color:var(--muted);font-size:.82rem}
+.meter{height:9px;border-radius:5px;background:var(--gap);overflow:hidden;min-width:80px}
+.meter i{display:block;height:100%;background:var(--accent)}
+.meter.low i{background:var(--brk)}.meter.mid i{background:var(--buf)}.meter.high i{background:var(--sd)}
+.stat-row{display:flex;flex-wrap:wrap;gap:22px;margin-bottom:6px}
+.stat-row div{font-size:.88rem;color:var(--muted)}
+.stat-row b{display:block;font-family:Fredoka,sans-serif;font-weight:600;font-size:1.6rem;color:var(--ink)}
+.err-text{color:var(--behind);font-size:.9rem;font-weight:700}
+.chart svg{width:100%;height:auto;display:block}
+.empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
+.blockrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
+@media(max-width:560px){.dayrow{grid-template-columns:1fr}.wrap{padding:14px 12px 56px}.blockrow{grid-template-columns:1fr}}
+.entry{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.entry:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>GMAT plan</h1><p id="sub">Study planner</p></div>
+    <div class="acct" id="acct"><span class="dot busy"></span>Connecting…</div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <a href="#today">Today</a><a href="#log">Study log</a><a href="#plan">Plan check</a><a href="#progress">Progress</a><a href="#mistakes">Mistake log</a><a href="#mocks">Mock tests</a><a href="#backup">Backup & devices</a>
+  </nav>
+  <main id="app"></main>
+</div>
+<script>
+/* ---------- dates ---------- */
+const DAY=86400000;
+const pad=n=>String(n).padStart(2,'0');
+const parse=s=>{const[y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d)};
+const fmt=t=>new Date(t).toISOString().slice(0,10);
+const addDays=(s,n)=>fmt(parse(s)+n*DAY);
+const diff=(a,b)=>Math.round((parse(b)-parse(a))/DAY);
+const dow=s=>new Date(parse(s)).getUTCDay();
+const localToday=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const nice=s=>{const t=new Date(parse(s));return t.getUTCDate()+' '+MON[t.getUTCMonth()]};
+const niceY=s=>nice(s)+' '+s.slice(0,4);
+const niceW=s=>WD[dow(s)]+' '+nice(s);
+const round5=x=>Math.max(0,Math.round(x/5)*5);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+const hm=m=>{m=Math.round(m);const h=Math.floor(m/60),r=m%60;return h?(h+'h'+(r?' '+r+'m':'')):r+' min'};
+const isDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(s||'');
+
+/* ---------- syllabus ---------- */
+const SECS=['Quant','Verbal','Data Insights'];
+const ALL=new Set(SECS);
+const SECTION={Quant:'Quantitative Reasoning',Verbal:'Verbal Reasoning','Data Insights':'Data Insights'};
+const SCLS={Quant:'Quant',Verbal:'Verbal','Data Insights':'DI'};
+const SSEG={Quant:'sq',Verbal:'sv','Data Insights':'sd'};
+const TOPICS=[
+ {id:'q-arith',s:'Quant',n:'Arithmetic, fractions & percents',c:180,q:70},
+ {id:'q-num',s:'Quant',n:'Number properties',c:240,q:80},
+ {id:'q-alg',s:'Quant',n:'Algebra & equations',c:240,q:90},
+ {id:'q-ineq',s:'Quant',n:'Inequalities & absolute value',c:150,q:50},
+ {id:'q-word',s:'Quant',n:'Word problems: rates, work, mixtures',c:240,q:80},
+ {id:'q-stat',s:'Quant',n:'Statistics & sets',c:150,q:50},
+ {id:'q-count',s:'Quant',n:'Counting & probability',c:180,q:60},
+ {id:'q-seq',s:'Quant',n:'Exponents, roots & sequences',c:150,q:50},
+ {id:'v-cr1',s:'Verbal',n:'CR: assumption, strengthen, weaken',c:240,q:90},
+ {id:'v-cr2',s:'Verbal',n:'CR: inference, evaluate, paradox, boldface',c:180,q:70},
+ {id:'v-rc1',s:'Verbal',n:'RC: main idea & structure',c:180,q:60},
+ {id:'v-rc2',s:'Verbal',n:'RC: detail & inference',c:150,q:60},
+ {id:'d-ds',s:'Data Insights',n:'Data sufficiency',c:240,q:90},
+ {id:'d-ta',s:'Data Insights',n:'Table analysis',c:120,q:40},
+ {id:'d-gi',s:'Data Insights',n:'Graphics interpretation',c:120,q:40},
+ {id:'d-tpa',s:'Data Insights',n:'Two-part analysis',c:150,q:50},
+ {id:'d-msr',s:'Data Insights',n:'Multi-source reasoning',c:150,q:40},
+];
+const TM=Object.fromEntries(TOPICS.map(t=>[t.id,t]));
+const ORDER=TOPICS.map(t=>t.id);
+const mpq=id=>TM[id].s==='Data Insights'?3:2.5;
+const MOCK_MIN=195,SET_MIN=45,LIGHT_MIN=45;
+
+const DEFAULTS={v:2,settings:{start:'2026-10-30',exam:'2027-02-28',breakStart:'2026-12-21',avail:[240,120,120,120,120,120,240],bufferDays:5,lightDays:2,mocks:6,timedSets:10,targetScore:655,blocks:null,tg:{}},log:[],mistakes:[],mockScores:[],pulled:{},conceptDone:{}};
+const clone=o=>JSON.parse(JSON.stringify(o));
+function normalize(d){const s=clone(DEFAULTS);const x=d?clone(d):{};
+  const st=Object.assign(s.settings,x.settings||{});if(!st.tg||typeof st.tg!=='object')st.tg={};
+  return {v:2,settings:st,log:Array.isArray(x.log)?x.log:[],mistakes:Array.isArray(x.mistakes)?x.mistakes:[],mockScores:Array.isArray(x.mockScores)?x.mockScores:[],pulled:x.pulled&&typeof x.pulled==='object'?x.pulled:{},conceptDone:x.conceptDone&&typeof x.conceptDone==='object'?x.conceptDone:{},lastExport:isDate(x.lastExport)?x.lastExport:null}}
+function targets(S){const o={};for(const T of TOPICS){const v=(S.tg||{})[T.id]||{};o[T.id]={c:v.c!=null?+v.c:T.c,q:v.q!=null?+v.q:T.q}}return o}
+
+/* ---------- calendar ---------- */
+function baseDays(S){
+  const days=[];const n=Math.max(0,diff(S.start,S.exam));const bEnd=addDays(S.breakStart,6);
+  for(let i=0;i<n;i++){const d=addDays(S.start,i);const cap=Math.max(0,+S.avail[dow(d)]||0);
+    days.push({d,cap,kind:(d>=S.breakStart&&d<=bEnd)?'break':'study',phase:0,left:0,sec:null,blk:null,gap:false})}
+  let k=days.length-1,L=+S.lightDays,B=+S.bufferDays;
+  while(k>=0&&L>0){if(days[k].kind==='study'){days[k].kind='final';L--}k--}
+  while(k>=0&&B>0){if(days[k].kind==='study'){days[k].kind='buffer';B--}k--}
+  days.forEach(x=>{if(x.kind==='study'&&x.cap<=0)x.kind='off'});
+  return {days,bEnd};
+}
+function autoBlocks(S,tg){
+  const {days}=baseDays(S);const core=days.filter(x=>x.kind==='study');const n=core.length;if(n<12)return [];
+  const learnN=Math.max(3,Math.round(n*.65));const w={};for(const T of TOPICS)w[T.s]=(w[T.s]||0)+tg[T.id].c+tg[T.id].q*mpq(T.id);
+  const tot=SECS.reduce((s,k)=>s+w[k],0)||1;let idx=0;const out=[];
+  SECS.forEach((s,i)=>{const cnt=i===2?learnN-idx:Math.max(1,Math.round(learnN*w[s]/tot));const a=Math.min(core.length-1,idx),b=Math.min(core.length-1,idx+cnt-1);out.push({s,from:core[a].d,to:core[b].d});idx+=cnt});
+  out[0].from=S.start;for(let i=0;i<out.length-1;i++)out[i].to=addDays(out[i+1].from,-1);
+  return out;
+}
+function buildCal(S,tg){
+  const {days,bEnd}=baseDays(S);
+  const blocks=(Array.isArray(S.blocks)&&S.blocks.length)?S.blocks.slice().sort((a,b)=>a.from.localeCompare(b.from)):autoBlocks(S,tg);
+  const core=days.filter(x=>x.kind==='study');const lastEnd=blocks.reduce((m,b)=>b.to>m?b.to:m,'');
+  const byBlock=blocks.map(()=>[]);const post=[];
+  for(const x of core){const bi=blocks.findIndex(b=>x.d>=b.from&&x.d<=b.to);
+    if(bi>=0){x.sec=blocks[bi].s;x.blk=bi;byBlock[bi].push(x)}else if(x.d>lastEnd)post.push(x);else{x.gap=true;x.phase=2}}
+  byBlock.forEach(arr=>arr.forEach((x,i)=>{x.phase=i<arr.length*.6?1:2;x.left=arr.length-i}));
+  post.forEach((x,i)=>{x.phase=i<post.length*.57?3:4});
+  const cnt={3:0,4:0};for(let i=post.length-1;i>=0;i--){cnt[post[i].phase]++;post[i].left=cnt[post[i].phase]}
+  let run=0;for(let i=core.length-1;i>=0;i--){if(core[i].gap){run++;core[i].left=run}else run=0}
+  let last=null;days.forEach(x=>{if(x.kind==='study')last=x;else if(x.kind==='off'&&last){x.phase=last.phase;x.sec=last.sec;x.gap=last.gap}});
+  let bl=0;for(let i=days.length-1;i>=0;i--){if(days[i].kind==='buffer'&&days[i].cap>0){bl++;days[i].left=bl}}
+  const by={};days.forEach(x=>by[x.d]=x);
+  const range={};post.forEach(x=>{const r=range[x.phase]||(range[x.phase]={from:x.d,to:x.d});r.to=x.d});
+  return {days,by,core,range,bEnd,blocks,post};
+}
+function mockSlots(cal,N,mc){
+  const good=cal.core.filter(x=>x.cap>=mc);const out=[];if(N<=0||!good.length)return out;
+  const first=good.find(x=>x.blk!=null);if(first)out.push(first.d);
+  const need=N-out.length;const late=good.filter(x=>x.phase>=3).reverse();const picked=[];
+  for(const x of late){if(picked.length>=need)break;if(!picked.length||diff(x.d,picked[picked.length-1])>=5)picked.push(x.d)}
+  if(picked.length<need)for(const x of late){if(picked.length>=need)break;if(!picked.includes(x.d))picked.push(x.d)}
+  return [...new Set(out.concat(picked))].sort();
+}
+function buildCtx(S){const tg=targets(S);const cal=buildCal(S,tg);const maxCap=Math.max(0,...S.avail.map(Number));const mockCap=Math.min(180,maxCap);
+  return {S,tg,cal,mockCap,slots:mockSlots(cal,+S.mocks,mockCap)}}
+
+/* ---------- progress ---------- */
+const TRACKED={concept:1,practice:1,revision:1,set:1,mock:1};
+function aggregate(log,before){
+  const a={concept:{},pq:{},qa:{},cor:{},rev:{},mocks:0,sets:0,min:0,tracked:0};
+  for(const e of log){if(before&&e.d>=before)continue;
+    a.min+=+e.m||0;if(TRACKED[e.t])a.tracked+=+e.m||0;
+    if(e.t==='concept')a.concept[e.tp]=(a.concept[e.tp]||0)+(+e.m||0);
+    else if(e.t==='practice'){a.pq[e.tp]=(a.pq[e.tp]||0)+(+e.q||0);if(e.c!=null&&e.c!==''){a.qa[e.tp]=(a.qa[e.tp]||0)+(+e.q||0);a.cor[e.tp]=(a.cor[e.tp]||0)+(+e.c||0)}}
+    else if(e.t==='revision')a.rev[e.tp]=(a.rev[e.tp]||0)+(+e.m||0);
+    else if(e.t==='mock')a.mocks++;
+    else if(e.t==='set')a.sets++;}
+  return a;
+}
+const accOf=(a,id)=>(a.qa[id]||0)>=10?a.cor[id]/a.qa[id]:null;
+function remaining(ctx,a,st){
+  const r={t:{},setsLeft:Math.max(0,+ctx.S.timedSets-a.sets)};
+  for(const T of TOPICS){const id=T.id,g=ctx.tg[id],pqDone=a.pq[id]||0,fq=Math.round(g.q*.3/5)*5,acc=accOf(a,id);
+    const open=st.mistakes.filter(m=>m.tp===id&&!m.fixed).length;
+    const revT=45+(acc==null?20:acc<.6?90:acc<.75?45:0)+Math.min(60,open*10);
+    r.t[id]={c:st.conceptDone[id]?0:Math.max(0,g.c-(a.concept[id]||0)),fq:Math.max(0,fq-pqDone),pq:Math.max(0,g.q-Math.max(pqDone,fq)),rv:Math.max(0,revT-(a.rev[id]||0)),acc,open,revT}}
+  return r;
+}
+function pools(r,slots,secs){const P=[0,0,0,0,0];
+  for(const id in r.t){const t=r.t[id];if(secs.has(TM[id].s)){P[1]+=t.c+t.fq*mpq(id);P[2]+=t.pq*mpq(id)}P[3]+=t.rv}
+  P[4]+=r.setsLeft*SET_MIN;for(const s of slots)P[s.ph]+=MOCK_MIN;return P}
+const upTo=(P,p)=>{let s=0;for(let i=1;i<=p;i++)s+=P[i];return s};
+
+/* ---------- scheduler ---------- */
+function fill(tasks,r,o){
+  let budget=o.budget;const p=o.p;
+  const add=t=>{const ex=tasks.find(x=>x.t===t.t&&x.tp===t.tp);if(ex){ex.m+=t.m;if(t.q)ex.q=(ex.q||0)+t.q}else tasks.push(t)};
+  const order=ORDER.filter(id=>o.secs.has(TM[id].s)).sort((a,b)=>(TM[b].s===o.cur)-(TM[a].s===o.cur));
+  let practiced=false;const review=budget>=45&&(p>=2||o.anyOpen)?15:0;budget-=review;
+  for(let pass=0;pass<2&&budget>=10;pass++){
+    for(const id of order){if(budget<10)break;const t=r.t[id];if(t.c<=0&&t.fq<=0)continue;
+      if(t.c>0){const c=Math.min(t.c,t.fq>0?Math.max(15,round5(budget*.6)):budget,budget);add({t:'concept',tp:id,m:c});t.c-=c;budget-=c}
+      if(t.fq>0&&budget>=10){const per=mpq(id);const q=Math.min(t.fq,Math.floor(budget/per/5)*5);if(q>=5||(q>0&&q===t.fq)){const m=Math.round(q*per);add({t:'practice',tp:id,q,m});t.fq-=q;budget-=m;practiced=true}}
+      if(t.c>0||t.fq>0)break;
+      if(budget<30)break;}
+    if(o.pqOk||pass===1){const ids=order.filter(id=>r.t[id].pq>0&&(pass===1||(r.t[id].c<=0&&r.t[id].fq<=0)))
+        .sort((x,y)=>((TM[x].s===o.cur?0:1)-(TM[y].s===o.cur?0:1))||((r.t[x].acc??.7)-(r.t[y].acc??.7)));let n=0;
+      for(const id of ids){if(budget<10||(pass===0&&n>=2))break;const per=mpq(id),t=r.t[id];const q=Math.min(t.pq,pass===0?30:999,Math.floor(budget/per/5)*5);
+        if(q<=0||(q<5&&q!==t.pq))continue;const m=Math.round(q*per);add({t:'practice',tp:id,q,m});t.pq-=q;budget-=m;practiced=true;n++}}
+    if(p>=3){const ids=ORDER.filter(id=>r.t[id].rv>0).sort((x,y)=>r.t[y].revT-r.t[x].revT);let n=0;
+      for(const id of ids){if(budget<10||(pass===0&&n>=2))break;const t=r.t[id];const m=Math.min(t.rv,pass===0?60:999,budget);if(m<10&&m!==t.rv)continue;
+        add({t:'revision',tp:id,m});t.rv-=m;budget-=m;n++}}
+    if(p>=4&&r.setsLeft>0&&budget>=40){add({t:'set',m:SET_MIN});r.setsLeft--;budget-=SET_MIN}
+  }
+  if(review&&(practiced||p>=2))add({t:'review',m:review});
+  return tasks;
+}
+function started(cal,d){const s=new Set();for(const b of cal.blocks)if(b.from<=d)s.add(b.s);return s}
+function simulate(ctx,from,a,st){
+  const {cal}=ctx;const r=remaining(ctx,a,st);const anyOpen=st.mistakes.some(m=>!m.fixed);
+  const slots=ctx.slots.slice(a.mocks).map(d=>({d,ph:Math.max(1,(cal.by[d]||{}).phase||4)}));
+  const plan={};const rampEnd=addDays(cal.bEnd,3);let usedBuffer=false;
+  for(const day of cal.days){if(day.d<from)continue;const tasks=[];plan[day.d]=tasks;
+    if(day.kind==='break'||day.kind==='off')continue;
+    if(day.kind==='final'){tasks.push({t:'light',m:LIGHT_MIN});continue}
+    if(day.kind==='buffer'&&day.cap<=0)continue;
+    let p,secs,cur=null,learning=false;
+    if(day.kind==='buffer'){p=4;secs=ALL}
+    else if(day.blk!=null){p=day.phase;secs=started(cal,day.d);cur=day.sec;learning=true}
+    else if(day.gap){p=2;secs=started(cal,day.d);learning=true}
+    else{p=day.phase;secs=ALL}
+    const P=pools(r,slots,secs);const pool=learning?P[1]+P[2]:upTo(P,p);
+    if(pool<=0){if(day.kind!=='buffer'&&upTo(pools(r,slots,ALL),4)>0)tasks.push({t:'ahead',m:0});continue}
+    const si=slots.findIndex(s=>s.d<=day.d&&(s.ph<=p||learning&&s.ph<=2));
+    if(si>=0&&day.cap>=ctx.mockCap){slots.splice(si,1);tasks.push({t:'mock',m:MOCK_MIN});if(day.kind==='buffer')usedBuffer=true;continue}
+    let budget=Math.min(day.cap,Math.max(20,round5(pool/Math.max(1,day.left))));
+    if(day.d>cal.bEnd&&day.d<=rampEnd)budget=Math.min(budget,Math.max(20,round5(day.cap*.75)));
+    const curDone=cur?ORDER.filter(id=>TM[id].s===cur).every(id=>r.t[id].c<=0&&r.t[id].fq<=0):true;
+    fill(tasks,r,{p,budget,anyOpen,secs,cur,pqOk:p>=2||curDone});
+    if(day.kind==='buffer'&&tasks.length)usedBuffer=true;
+  }
+  return {plan,leftover:upTo(pools(r,slots,ALL),4),usedBuffer};
+}
+const taskKey=(d,t)=>d+'|'+t.t+'|'+(t.tp||'');
+
+/* ---------- model ---------- */
+function model(st,today){
+  const ctx=buildCtx(st.settings);const {cal,S}=ctx;
+  const startFrom=today<S.start?S.start:today;
+  const aBefore=aggregate(st.log,startFrom);
+  const todaySim=simulate(ctx,startFrom,aBefore,st);
+  const todayTasks=(todaySim.plan[startFrom]||[]).slice();
+  const pulled=(st.pulled[startFrom]||[]);
+  const allToday=todayTasks.concat(pulled.map(t=>Object.assign({},t,{pull:true})));
+  const loggedKeys=new Set(st.log.filter(e=>e.d===startFrom).map(e=>e.k));
+  let pi=0;const keyed=allToday.map(t=>({t,k:taskKey(startFrom,t)+(t.pull?'|pull'+(pi++):'')}));
+  const fake=keyed.filter(x=>TRACKED[x.t.t]&&!loggedKeys.has(x.k)).map(x=>({d:startFrom,k:x.k,t:x.t.t,tp:x.t.tp,m:x.t.m,q:x.t.q}));
+  const aProj=aggregate(st.log.concat(fake));
+  const proj=simulate(ctx,addDays(startFrom,1),aProj,st);
+  const base=simulate(ctx,S.start,aggregate([]),{mistakes:[],conceptDone:{}});
+  let baseTotal=0,planned=0;for(const d in base.plan)for(const t of base.plan[d])if(TRACKED[t.t]){baseTotal+=t.m;if(d<today)planned+=t.m}
+  const aAll=aggregate(st.log);const rAll=remaining(ctx,aAll,st);
+  const slotsLeft=ctx.slots.slice(aAll.mocks).map(d=>({d,ph:Math.max(1,(cal.by[d]||{}).phase||4)}));
+  const remMin=upTo(pools(rAll,slotsLeft,ALL),4);
+  const pct=aAll.tracked+remMin>0?aAll.tracked/(aAll.tracked+remMin):0;
+  const avgLoad=cal.core.length?baseTotal/cal.core.length:0;
+  const gap=planned-aBefore.tracked;
+  let status='on';
+  if(proj.leftover>0)status='behind';else if(proj.usedBuffer||gap>3*avgLoad)status='risk';
+  if(today<S.start||today>=S.exam)status='idle';
+  const capAvail=cal.core.reduce((s,x)=>s+x.cap,0);
+  return {ctx,cal,S,today,startFrom,keyed,loggedKeys,proj,base,baseTotal,planned,aAll,rAll,pct,status,gap,avgLoad,capAvail,remMin};
+}
+/* earliest exam date that fits the remaining work at current daily times */
+function fitsBy(st,today,exam){
+  const S=Object.assign({},st.settings,{exam});
+  const bEnd=addDays(S.breakStart,6);
+  if(S.breakStart<exam&&bEnd>=addDays(exam,-14))return false;
+  if(Array.isArray(S.blocks)&&S.blocks.length){const last=S.blocks.reduce((m,b)=>b.to>m?b.to:m,'');if(last>addDays(exam,-21))S.blocks=null}
+  const ctx=buildCtx(S);if(!ctx.cal.post.length)return false;
+  const from=today<S.start?S.start:today;
+  const sim=simulate(ctx,from,aggregate(st.log,from),st);
+  return sim.leftover<=0&&!sim.usedBuffer;
+}
+let earlyCache={k:'',v:null};
+function earliestExam(st,today){
+  const k=JSON.stringify([st.settings,st.log.length,st.mistakes.length,st.conceptDone,today]);if(earlyCache.k===k)return earlyCache.v;
+  const S=st.settings;let v=null;const lo=addDays(today<S.start?S.start:today,28);
+  for(let c=lo;c<S.exam;c=addDays(c,1)){if(fitsBy(st,today,c)){v=c;break}}
+  earlyCache={k,v};return v;
+}
+
+/* ======================= UI ======================= */
+let state=normalize(null);
+const LS='gmat-planner-v1';
+try{const raw=localStorage.getItem(LS);if(raw)state=normalize(JSON.parse(raw))}catch(e){}
+let ui={openTask:null,planErr:'',editPlan:false,mfilter:'open',logMsg:'',logOk:false,logSec:'Quant',bkMsg:'',bkOk:false};
+let saveFailed=false;
+function commit(){try{localStorage.setItem(LS,JSON.stringify(state));saveFailed=false}catch(e){saveFailed=true}render()}
+function renderAcct(){
+  const el=document.getElementById('acct');const last=state.lastExport;const ago=last?diff(last,localToday()):null;
+  const msg=saveFailed?['err','This browser is blocking saves']:!state.log.length&&!last?['ok','Saved on this device']:ago==null?['busy','No backup yet']:ago>7?['busy','Last backup '+ago+' days ago']:['ok','Backed up '+(ago===0?'today':ago===1?'yesterday':ago+' days ago')];
+  el.innerHTML=`<div><b>This device</b><small><span class="dot ${msg[0]}"></span>${msg[1]}</small></div><button class="btn sm" data-act="export">Export</button>`;
+}
+const ROUTES=['today','log','plan','progress','mistakes','mocks','backup'];
+function route(){const h=(location.hash||'#today').slice(1);return ROUTES.includes(h)?h:'today'}
+window.addEventListener('hashchange',()=>{ui.editPlan=false;render()});
+function render(){
+  renderAcct();const r=route();
+  document.querySelectorAll('#tabs a').forEach(a=>{if(a.getAttribute('href')==='#'+r)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  const M=model(state,localToday());
+  document.getElementById('sub').textContent=niceY(M.S.start)+' → '+niceY(M.S.exam);
+  const v={today:viewToday,log:viewLog,plan:viewPlan,progress:viewProgress,mistakes:viewMistakes,mocks:viewMocks,backup:viewBackup}[r];
+  document.getElementById('app').innerHTML=v(M);
+}
+
+/* --- shared --- */
+const STATUS={on:['on','On Track'],risk:['risk','At Risk'],behind:['behind','Behind'],idle:['idle','Not started']};
+function pill(s){const x=STATUS[s];return `<span class="pill ${x[0]}">${x[1]}</span>`}
+function dayLabel(c){if(!c)return '';
+  if(c.kind==='break')return 'Break';if(c.kind==='buffer')return 'Buffer & catch-up';if(c.kind==='final')return 'Final light review';
+  if(c.sec)return (c.phase===1?'Foundation':'Practice')+' · '+SECTION[c.sec];
+  if(c.gap)return 'Mixed practice';
+  return c.phase===3?'Revision & weak areas':'Mock tests & final prep'}
+function phaseNow(M){const c=M.cal.by[M.today];if(M.today<M.S.start)return 'Starts '+nice(M.S.start);if(M.today>=M.S.exam)return 'Exam day reached';if(c&&c.kind==='off')return 'Rest day';return dayLabel(c)||'—'}
+function prepDayNo(M){let n=0;for(const x of M.cal.days){if(x.d>M.today)break;if(x.kind!=='break')n++}return n}
+function prepDaysLeft(M){return M.cal.days.filter(x=>x.d>=M.today&&x.kind!=='break'&&x.kind!=='off').length}
+const topicLabel=id=>id&&TM[id]?TM[id].n:'';
+const chip=s=>`<span class="chip ${SCLS[s]}">${s==='Data Insights'?'DI':s}</span>`;
+function taskText(t){
+  const T=t.tp?TM[t.tp]:null;
+  switch(t.t){
+    case 'concept':return ['Concept review — '+t.m+' min',T.n];
+    case 'practice':return ['Practice — '+t.q+' questions',T.n+' · about '+hm(t.m)];
+    case 'review':return ['Review mistakes — '+t.m+' min','Work through open entries in your mistake log'];
+    case 'revision':return ['Targeted revision — '+t.m+' min',T.n];
+    case 'set':return ['Timed mixed set — 45 min','Mixed questions across all three sections, strict timing'];
+    case 'mock':return ['Full-length mock test + analysis','2h 15m test, then about an hour reviewing every miss'];
+    case 'light':return ['Light review — 45 min','Formula sheet, mistake log highlights, pacing plan. No new topics.'];
+    case 'ahead':return ['You’re ahead of plan','Use “Pull ahead” or take the day lighter'];
+  }
+  return [t.t,''];
+}
+function focusLine(tasks){
+  const main=tasks.find(t=>t.tp&&(t.t==='concept'||t.t==='practice'||t.t==='revision'));
+  if(tasks.some(t=>t.t==='mock'))return '<span class="sec">Full-length</span> → Mock test day';
+  if(main){const T=TM[main.tp];return `<span class="sec">${SECTION[T.s]}</span> → ${esc(T.n)}`}
+  if(tasks.some(t=>t.t==='set'))return '<span class="sec">Mixed</span> → Timed practice';
+  if(tasks.some(t=>t.t==='light'))return '<span class="sec">Final days</span> → Light review';
+  return 'Nothing scheduled';
+}
+function segKey(x){if(x.kind==='break'||x.kind==='buffer'||x.kind==='final')return x.kind;if(x.sec)return SSEG[x.sec];if(x.gap)return 'gap';return 'p'+(x.phase||3)}
+const SEGNAME={sq:'Quant',sv:'Verbal',sd:'Data Insights',gap:'Mixed practice',p3:'Revision',p4:'Mock tests',break:'Break',buffer:'Buffer',final:'Light review'};
+function ribbon(M){
+  const days=M.cal.days,total=days.length;if(!total)return '';
+  const segs=[];for(const x of days){const key=segKey(x);const l=segs[segs.length-1];if(l&&l.key===key)l.n++;else segs.push({key,n:1,from:x.d})}
+  const ti=diff(M.S.start,M.today);const tp=Math.min(100,Math.max(0,(ti+.5)/total*100));
+  let months='';for(let i=0;i<total;i++){const x=addDays(M.S.start,i);if(x.endsWith('-01')||i===0)months+=`<span style="left:${i/total*100}%">${MON[+x.slice(5,7)-1]}</span>`}
+  const showToday=M.today>=M.S.start&&M.today<M.S.exam;
+  const used=[...new Set(segs.map(s=>s.key))];
+  return `<div class="ribbon" role="img" aria-label="Preparation timeline">
+    <div class="bar">${segs.map(s=>`<div class="seg ${s.key}" style="flex:${s.n}" title="${esc(SEGNAME[s.key]||s.key)}: ${nice(s.from)}, ${s.n} days"></div>`).join('')}</div>
+    ${showToday?`<div class="done-shade" style="width:${tp}%"></div><div class="today-mark" style="left:calc(${tp}% - 1px)"><span>Today</span></div>`:''}
+    <div class="months">${months}</div></div>
+  <div class="legend">${['sq','sv','sd','gap','p3','p4','break','buffer','final'].filter(k=>used.includes(k)).map(k=>`<span><i class="seg ${k}"></i>${SEGNAME[k]}</span>`).join('')}</div>`;
+}
+
+/* --- Today --- */
+function viewToday(M){
+  const {S}=M;
+  let h=`<section class="card mb">
+    <div class="count"><div class="days">${Math.max(0,diff(M.today,S.exam))}<span>days until your exam, ${niceW(S.exam)} ${S.exam.slice(0,4)}</span></div>
+    <div class="facts"><div><b>${prepDaysLeft(M)}</b>prep days left (break excluded)</div><div><b>${esc(phaseNow(M))}</b>current phase</div><div><b>${Math.round(M.pct*100)}%</b>of the plan done</div><div><b>${pill(M.status)}</b>status</div></div></div>
+    ${ribbon(M)}</section>`;
+  h+=statusNote(M);
+  h+=`<div class="grid g2"><section class="card focus">${focusCard(M)}</section><aside class="grid" style="align-content:start">${sideCards(M)}</aside></div>`;
+  return h;
+}
+function statusNote(M){
+  const {today,S,cal}=M;if(today<S.start||today>=S.exam)return '';
+  if(M.status==='behind'){const n=cal.core.filter(x=>x.d>today).length||1;const extra=round5(M.proj.leftover/n)||5;
+    return `<div class="note behind"><b>You’re falling behind your exam date.</b> About ${hm(M.proj.leftover)} of work won’t fit in the remaining study and buffer days. In Plan check you can add about ${extra} min per study day, lengthen a section block, move the break, reduce mocks or timed sets, or push the exam date later.</div>`}
+  if(M.status==='risk'){
+    if(M.proj.usedBuffer)return `<div class="note risk"><b>At risk:</b> the plan now leans on your buffer days to finish. That still works, but there’s less room for surprises.</div>`;
+    return `<div class="note risk"><b>At risk:</b> you’re about ${hm(M.gap)} behind the original pace. The remaining work is spread across your remaining days so no single day is overloaded.</div>`}
+  const y=addDays(today,-1),cy=cal.by[y];
+  if(cy&&(cy.kind==='study'||cy.kind==='buffer')&&y>=S.start&&!state.log.some(e=>e.d===y)&&(M.base.plan[y]||[]).length)
+    return `<div class="note info">No study logged yesterday. Its work has been spread across the coming days rather than piled onto today.</div>`;
+  return '';
+}
+function focusCard(M){
+  const {today,S,cal}=M;const c=cal.by[today];
+  if(today>=S.exam)return `<h2>Exam time</h2><p>Your preparation window has ended. Good luck. Trust the work you put in.</p>`;
+  if(c&&c.kind==='break'){const back=addDays(cal.bEnd,1);const nxt=(M.proj.plan[back]||[]).find(t=>t.tp);
+    return `<h2>You’re on your break</h2><p>No tasks today. Reminders are paused and your streak is safe. Study resumes on <b>${niceW(back)}</b>${nxt?`, starting gently with ${esc(TM[nxt.tp].n)}`:''}. The first days back are kept lighter.</p>`}
+  if(c&&c.kind==='off')return `<h2>Rest day</h2><p>You set 0 minutes of study for ${WD[dow(today)]}s. Nothing scheduled.</p>`;
+  const pre=today<S.start;const keyed=M.keyed;
+  const done=keyed.filter(x=>M.loggedKeys.has(x.k)).length;
+  const extras=state.log.filter(e=>e.d===M.startFrom&&!keyed.some(x=>x.k===e.k));
+  let h=`<h2>${pre?'Your first day: '+niceW(S.start):'Today’s GMAT focus'}</h2><div class="topic">${focusLine(keyed.map(x=>x.t))}</div>`;
+  if(!keyed.length)h+=`<div class="empty">Nothing scheduled. You’re ahead of plan.</div>`;
+  h+='<ul class="tasks">'+keyed.map(({t,k})=>taskItem(t,k,M.loggedKeys.has(k),pre)).join('')+'</ul>';
+  if(extras.length)h+=`<p class="small muted" style="margin:10px 0 0">Also logged today: ${extras.map(entryText).join(', ')}</p>`;
+  const real=keyed.filter(x=>x.t.t!=='ahead');
+  if(!pre&&(!real.length||done===real.length)){const nx=nextAhead(M);if(nx)h+=`<div class="note on" style="margin:14px 0 0">All done for today. Want to pull <b>${esc(taskText(nx)[0])}</b> (${esc(taskText(nx)[1])}) forward from ${niceW(nx._d)}? It won’t add to later days.<div style="margin-top:8px"><button class="btn primary" data-act="pull">Pull ahead</button></div></div>`}
+  h+=`<p class="small muted" style="margin:12px 0 0">Studied something different today? Record it in the <a href="#log">study log</a>.</p>`;
+  h+=`<div class="prog"><div><b>Progress</b></div><div>Day ${pre?1:prepDayNo(M)} of preparation</div><div>${Math.max(0,diff(today,S.exam))} days until target exam</div><div>You are currently ${pill(M.status)}</div></div>`;
+  return h;
+}
+function nextAhead(M){
+  for(const x of M.cal.days){if(x.d<=M.today)continue;const ts=(M.proj.plan[x.d]||[]).filter(t=>TRACKED[t.t]&&t.t!=='mock');
+    if(ts.length){const pick=ts.slice().sort((a,b)=>((a.tp&&M.rAll.t[a.tp].acc)??.7)-((b.tp&&M.rAll.t[b.tp].acc)??.7))[0];return Object.assign({},pick,{_d:x.d})}}
+  return null;
+}
+function taskItem(t,k,isDone,pre){
+  const [a,b]=taskText(t);
+  if(t.t==='ahead')return `<li class="task"><div><div class="tl">${a}</div><div class="tsub">${b}</div></div></li>`;
+  const open=ui.openTask===k&&!isDone;let form='';
+  if(open&&t.t==='practice')form=`<div class="inline-form"><label class="small">Questions done <input type="number" min="1" max="300" id="f-q" value="${t.q}"></label><label class="small">Correct <input type="number" min="0" max="300" id="f-c"></label><button class="btn primary sm" data-act="save-task" data-k="${esc(k)}">Save</button><button class="btn ghost sm" data-act="cancel">Cancel</button></div>`;
+  if(open&&t.t==='mock')form=`<div class="inline-form"><label class="small">Total <input type="number" min="205" max="805" id="f-total" placeholder="205–805"></label><label class="small">Quant <input type="number" min="60" max="90" id="f-sq"></label><label class="small">Verbal <input type="number" min="60" max="90" id="f-sv"></label><label class="small">DI <input type="number" min="60" max="90" id="f-sd"></label><button class="btn primary sm" data-act="save-task" data-k="${esc(k)}">Save</button><button class="btn ghost sm" data-act="cancel">Cancel</button></div>`;
+  return `<li class="task ${isDone?'done':''}"><button class="chk ${isDone?'on':''}" aria-label="${isDone?'Mark not done':'Mark done'}: ${esc(a)}" data-act="toggle" data-k="${esc(k)}" ${pre?'disabled':''}>${isDone?'✓':''}</button>
+    <div style="flex:1"><div class="tl">${esc(a)}${t.pull?' <span class="chip other">pulled ahead</span>':''}</div><div class="tsub">${t.tp?chip(TM[t.tp].s):''}${esc(b)}</div>${form}</div></li>`;
+}
+function sideCards(M){
+  const tom=addDays(M.startFrom,1);const tt=(M.proj.plan[tom]||[]);const ct=M.cal.by[tom];
+  const tomTxt=!ct?'Exam window ends':ct.kind==='break'?'Break day':ct.kind==='off'?'Rest day':tt.length?tt.filter(t=>t.t!=='review').map(t=>esc(taskText(t)[0])).join('<br>'):'Lighter day, nothing new needed';
+  let nextMock=null;for(const x of M.cal.days){if(x.d>M.startFrom&&(M.proj.plan[x.d]||[]).some(t=>t.t==='mock')){nextMock=x.d;break}}
+  return `<section class="card"><div class="stat-row"><div><b>${streak(M)}</b>day streak</div><div><b>${hm(weekMinutes(M))}</b>this week</div><div><b>${M.aAll.mocks}</b>mocks taken</div></div><p class="small muted" style="margin:6px 0 0">Break days never break your streak.</p></section>
+  <section class="card"><h3>Tomorrow · ${niceW(tom)}</h3><div class="small">${tomTxt}</div>${nextMock?`<p class="small muted" style="margin:10px 0 0">Next full-length mock: <b>${niceW(nextMock)}</b>. Want to take one sooner? Log it in Mock tests.</p>`:''}</section>`;
+}
+function streak(M){const ds=new Set(state.log.map(e=>e.d));let s=0;let d=ds.has(M.today)?M.today:addDays(M.today,-1);
+  for(let i=0;i<400;i++){const c=M.cal.by[d];if(!c)break;if(c.kind==='break'||c.kind==='off'){d=addDays(d,-1);continue}if(ds.has(d)){s++;d=addDays(d,-1)}else break}return s}
+function weekMinutes(M){const mon=addDays(M.today,-((dow(M.today)+6)%7));return state.log.filter(e=>e.d>=mon&&e.d<=M.today).reduce((s,e)=>s+(+e.m||0),0)}
+
+/* --- Study log --- */
+function entryText(e){
+  if(e.t==='practice')return `${e.q} questions in ${esc(topicLabel(e.tp))}${e.c!=null&&e.c!==''?` (${e.c} correct)`:''}`;
+  if(e.t==='concept')return `${hm(e.m)} of concepts in ${esc(topicLabel(e.tp))}`;
+  if(e.t==='revision')return `${hm(e.m)} revision in ${esc(topicLabel(e.tp))}`;
+  if(e.t==='mock')return 'Full-length mock';
+  if(e.t==='set')return 'Timed mixed set';
+  if(e.t==='review')return `${hm(e.m)} mistake review`;
+  if(e.t==='light')return `${hm(e.m)} light review`;
+  return esc(e.t);
+}
+function topicSelect(id,sec,sel){return `<select id="${id}">${TOPICS.filter(t=>!sec||t.s===sec).map(t=>`<option value="${t.id}" ${sel===t.id?'selected':''}>${esc(t.n)}</option>`).join('')}</select>`}
+function viewLog(M){
+  let h=`<section class="card mb"><h3>Log today’s study</h3><p class="small muted" style="margin-top:-4px">Record what you actually did each day. It counts toward your progress and the rest of the plan adjusts.</p>
+  <div class="row"><label class="f">Date<input type="date" id="l-d" value="${M.today}" max="${M.today}"></label>
+  <label class="f">Subject<select id="l-sec">${SECS.map(s=>`<option value="${s}" ${ui.logSec===s?'selected':''}>${SECTION[s]}</option>`).join('')}</select></label>
+  <label class="f">Topic<span id="l-tp-wrap">${topicSelect('l-tp',ui.logSec)}</span></label></div>
+  <h4>Concepts</h4><div class="row"><label class="c"><input type="checkbox" id="l-cs"> I studied concepts</label><label class="f">Minutes<input type="number" id="l-cm" min="1" max="600" placeholder="e.g. 45"></label><label class="c"><input type="checkbox" id="l-cf"> I’ve finished all concepts for this topic</label></div>
+  <h4>Questions</h4><div class="row"><label class="f">Questions solved<input type="number" id="l-q" min="0" max="500"></label><label class="f">Correct<span>Optional</span><input type="number" id="l-c" min="0" max="500"></label><label class="f">Minutes<span>Optional</span><input type="number" id="l-qm" min="1" max="600"></label></div>
+  <div class="row" style="margin-top:14px"><button class="btn primary" data-act="log-save">Save to log</button><span class="${ui.logOk?'small':'err-text'}">${esc(ui.logMsg)}</span></div></section>`;
+  const byDay={};for(const e of state.log)(byDay[e.d]=byDay[e.d]||[]).push(e);
+  const days=Object.keys(byDay).sort().reverse();
+  h+=`<section class="card"><h3>History</h3>`;
+  if(!days.length)h+=`<div class="empty">Nothing logged yet. Tick tasks on Today or add an entry above.</div>`;
+  else h+='<div class="days-list">'+days.slice(0,90).map(d=>{const es=byDay[d];const mins=es.reduce((s,e)=>s+(+e.m||0),0);const qs=es.filter(e=>e.t==='practice').reduce((s,e)=>s+(+e.q||0),0);
+    return `<div class="dayrow"><div class="dt"><b>${niceW(d)}</b>${hm(mins)}${qs?` · ${qs} questions`:''}</div><div class="small">${es.map(e=>`<div class="entry"><span>${e.tp?chip(TM[e.tp].s):e.t==='mock'?'<span class="chip mock">Mock</span>':'<span class="chip other">General</span>'}${entryText(e)}</span><button class="btn ghost danger sm" data-act="del-log" data-id="${esc(e.id)}" aria-label="Delete entry">Delete</button></div>`).join('')}</div></div>`}).join('')+'</div>';
+  return h+'</section>';
+}
+
+/* --- Plan check --- */
+function viewPlan(M){
+  let h=examCard(M);
+  h+=ui.editPlan?planEditor(M):planSummary(M);
+  if(!ui.editPlan)h+=nextWeeks(M);
+  return h;
+}
+function examCard(M){
+  const {S,today}=M;if(today>=S.exam)return '';
+  const e=earliestExam(state,today);
+  const sc=state.mockScores.filter(s=>s.t).sort((a,b)=>a.d.localeCompare(b.d));const last2=sc.slice(-2);
+  const ready=last2.length===2&&last2.every(s=>s.t>=+S.targetScore);
+  let h=`<section class="card mb"><h3>Taking the exam earlier</h3>`;
+  h+=e?`<p style="margin:0 0 10px">At your current daily study times, the remaining work fits by <b>${niceW(e)} ${e.slice(0,4)}</b>, ${diff(e,S.exam)} days before your current date, without touching buffer days.</p>
+    <button class="btn primary" data-act="move-exam" data-d="${e}">Move my exam to ${nice(e)}</button>`
+   :`<p style="margin:0">No earlier date fits the remaining work at your current daily times. Adding study time in the plan below, or finishing tasks ahead of schedule, will open up earlier dates.</p>`;
+  h+=`<p class="small muted" style="margin:12px 0 0">${ready?`Your last two mocks (${last2.map(s=>s.t).join(', ')}) are at or above your target of ${S.targetScore}, so moving up is a reasonable call.`:`Before moving the date, aim for two mock scores at or above your target of ${S.targetScore}. ${last2.length?`Latest: ${last2[last2.length-1].t}.`:'No mock scores yet.'}`} If you move it, the whole plan recalculates, and section blocks are re-fitted automatically if they no longer fit.</p></section>`;
+  return h;
+}
+function planSummary(M){
+  const {S,cal}=M;const n=cal.days.length;
+  const tq=Object.values(M.ctx.tg).reduce((s,x)=>s+x.q,0),tc=Object.values(M.ctx.tg).reduce((s,x)=>s+x.c,0);
+  const fits=M.base.leftover<=0,usesBuf=M.base.usedBuffer;const coreN=cal.core.length;const extra=coreN?round5(M.base.leftover/coreN)||5:0;
+  let verdict=!cal.post.length?`<div class="note behind"><b>No time left for revision and mocks.</b> End your last section block at least three weeks before the exam.</div>`
+    :fits&&!usesBuf?`<div class="note on"><b>The plan fits.</b> It needs about ${hm(M.baseTotal)} of study against ${hm(M.capAvail)} available on core study days, so typical days stay under your daily limit.</div>`
+    :fits?`<div class="note risk"><b>Tight:</b> the plan only fits by using buffer days. Consider a little more daily time or fewer timed sets.</div>`
+    :`<div class="note behind"><b>This doesn’t fit.</b> About ${hm(M.base.leftover)} of work has no room. Suggestions: add about ${extra} min per study day, lengthen the section blocks that are short, reduce mocks or timed sets, or move the exam later.</div>`;
+  const bEnd=cal.bEnd;const bOk=S.breakStart>=S.exam||bEnd<addDays(S.exam,-14);
+  const blockRows=cal.blocks.map(b=>{const days=cal.core.filter(x=>x.d>=b.from&&x.d<=b.to);const brk=b.from<=bEnd&&b.to>=S.breakStart;
+    const w=TOPICS.filter(t=>t.s===b.s).reduce((s,t)=>s+M.ctx.tg[t.id].c+M.ctx.tg[t.id].q*mpq(t.id),0);const cap=days.reduce((s,x)=>s+x.cap,0);
+    return `<tr><td>${chip(b.s)}<b>${SECTION[b.s]}</b></td><td>${niceW(b.from)} – ${niceW(b.to)}</td><td>${days.length} study days${brk?' (includes break)':''}</td><td class="small">${hm(w)} needed · ${hm(cap)} available${w>cap?' <span class="err-text">too short</span>':''}</td></tr>`}).join('');
+  const r3=cal.range[3],r4=cal.range[4];const buf=cal.days.filter(x=>x.kind==='buffer'),fin=cal.days.filter(x=>x.kind==='final');
+  return `<section class="card mb"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px"><h3 style="margin:0">Plan check</h3><button class="btn primary" data-act="edit-plan">Edit plan</button></div>
+  ${verdict}${bOk?'':'<div class="note behind">Your break falls in the last two weeks before the exam. Move it earlier so it doesn’t eat into mock time.</div>'}
+  <h4>Your schedule, in order</h4><div class="scroll"><table><thead><tr><th>Block</th><th>Dates</th><th>Days</th><th>Workload</th></tr></thead><tbody>
+  ${blockRows||'<tr><td colspan="4" class="muted">No section blocks. Dates are too short to plan.</td></tr>'}
+  ${r3?`<tr><td><span class="chip rev">Revision</span><b>Revision & weak areas</b></td><td>${niceW(r3.from)} – ${niceW(r3.to)}</td><td>${cal.post.filter(x=>x.phase===3).length} study days</td><td class="small">All three sections, weakest first</td></tr>`:''}
+  ${r4?`<tr><td><span class="chip mock">Mocks</span><b>Mock tests & final prep</b></td><td>${niceW(r4.from)} – ${niceW(r4.to)}</td><td>${cal.post.filter(x=>x.phase===4).length} study days</td><td class="small">Full-length mocks and timed sets</td></tr>`:''}
+  <tr><td><span class="chip other">Break</span><b>Break</b></td><td>${niceW(S.breakStart)} – ${niceW(bEnd)}</td><td>7 days</td><td class="small">No tasks, reminders paused</td></tr>
+  ${buf.length?`<tr><td><span class="chip other">Buffer</span><b>Buffer</b></td><td>${niceW(buf[0].d)} – ${niceW(buf[buf.length-1].d)}</td><td>${buf.length} days</td><td class="small">Catch-up only if needed</td></tr>`:''}
+  ${fin.length?`<tr><td><span class="chip other">Final</span><b>Light review</b></td><td>${niceW(fin[0].d)} – ${niceW(fin[fin.length-1].d)}</td><td>${fin.length} days</td><td class="small">Light review, rest, exam readiness</td></tr>`:''}
+  </tbody></table></div>
+  <h4>Settings</h4><div class="scroll"><table><tbody>
+  <tr><td>Window</td><td>${niceW(S.start)} → ${niceW(S.exam)} · ${n} days</td></tr>
+  <tr><td>Daily study time</td><td>${S.avail.map((m,i)=>WD[i]+' '+m).join(' · ')} min</td></tr>
+  <tr><td>Syllabus</td><td>${TOPICS.length} topics · ${hm(tc)} of concepts · ${tq} practice questions</td></tr>
+  <tr><td>Mocks</td><td>${M.ctx.slots.length} full-length: ${M.ctx.slots.map(nice).join(', ')}</td></tr>
+  <tr><td>Timed sets · target score</td><td>${S.timedSets} sets · ${S.targetScore}</td></tr>
+  </tbody></table></div></section>`;
+}
+function planEditor(M){
+  const S=state.settings;const auto=!(Array.isArray(S.blocks)&&S.blocks.length);const blocks=M.cal.blocks.length?M.cal.blocks:SECS.map(s=>({s,from:'',to:''}));
+  return `<section class="card mb"><h3>Edit plan</h3>
+  <h4>Dates</h4><div class="row">
+   <label class="f">Start date<input type="date" id="st-start" value="${S.start}"></label>
+   <label class="f">Exam date<input type="date" id="st-exam" value="${S.exam}"></label>
+   <label class="f">Break starts<span>Runs 7 days</span><input type="date" id="st-break" value="${S.breakStart}"></label></div>
+  <h4>Section blocks</h4><p class="small muted" style="margin-top:-4px">Choose which dates you study each section: concepts first, then practice. Revision and mocks start after the last block ends.</p>
+  <label class="c" style="margin-bottom:10px"><input type="checkbox" id="st-auto" ${auto?'checked':''}> Fit blocks to my dates automatically</label>
+  ${blocks.map((b,i)=>`<div class="blockrow"><label class="f">Block ${i+1}<select id="bk-s${i}">${SECS.map(s=>`<option value="${s}" ${b.s===s?'selected':''}>${SECTION[s]}</option>`).join('')}</select></label><label class="f">From<input type="date" id="bk-f${i}" value="${b.from}"></label><label class="f">To<input type="date" id="bk-t${i}" value="${b.to}"></label></div>`).join('')}
+  <h4>Daily study time (minutes)</h4><div class="row">${WD.map((w,i)=>`<label class="f">${w}<input type="number" min="0" max="600" step="15" id="st-a${i}" value="${S.avail[i]}"></label>`).join('')}</div>
+  <h4>Plan shape</h4><div class="row">
+   <label class="f">Buffer days<input type="number" min="0" max="14" id="st-buf" value="${S.bufferDays}"></label>
+   <label class="f">Light-review days<input type="number" min="1" max="5" id="st-light" value="${S.lightDays}"></label>
+   <label class="f">Full-length mocks<input type="number" min="2" max="10" id="st-mocks" value="${S.mocks}"></label>
+   <label class="f">Timed mixed sets<input type="number" min="0" max="30" id="st-sets" value="${S.timedSets}"></label>
+   <label class="f">Target score<input type="number" min="205" max="805" step="10" id="st-target" value="${S.targetScore}"></label></div>
+  <h4>Syllabus workload</h4><div class="scroll"><table><thead><tr><th>Topic</th><th>Concept minutes</th><th>Practice questions</th></tr></thead><tbody>
+  ${TOPICS.map(T=>`<tr><td>${chip(T.s)}${esc(T.n)}</td><td><input type="number" min="0" max="2000" step="15" id="tg-c-${T.id}" value="${M.ctx.tg[T.id].c}"></td><td><input type="number" min="0" max="1000" step="5" id="tg-q-${T.id}" value="${M.ctx.tg[T.id].q}"></td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-plan">Save plan</button><button class="btn ghost" data-act="cancel-plan">Cancel</button><span class="err-text">${esc(ui.planErr)}</span></div></section>`;
+}
+function nextWeeks(M){
+  const cal=M.cal;let h=`<section class="card"><h3>Next 3 weeks</h3><p class="small muted" style="margin-top:-4px">Recalculated each time you log work, miss a day or change the plan.</p><div class="days-list">`;
+  for(let i=0;i<21;i++){const d=addDays(M.startFrom,i);const c=cal.by[d];if(!c)break;
+    const tasks=i===0?M.keyed.map(x=>x.t):(M.proj.plan[d]||[]);const mins=tasks.reduce((s,t)=>s+(t.m||0),0);
+    const kind=c.kind==='off'?'Rest day':dayLabel(c);
+    const body=c.kind==='break'?'<span class="muted">Break, no tasks</span>':c.kind==='off'?'<span class="muted">Rest day</span>':!tasks.length?'<span class="muted">Free, nothing needed</span>':tasks.map(t=>`<div>${esc(taskText(t)[0])} <span class="muted small">${esc(t.tp?TM[t.tp].n:'')}</span></div>`).join('');
+    h+=`<div class="dayrow ${i===0?'today':''}"><div class="dt"><b>${i===0?'Today':niceW(d)}</b>${esc(kind)}${mins?' · '+hm(mins):''}</div><div class="small">${body}</div></div>`}
+  return h+'</div></section>';
+}
+
+/* --- Progress --- */
+function viewProgress(M){
+  const a=M.aAll;
+  let h=`<section class="card mb"><div class="stat-row"><div><b>${hm(a.min)}</b>total studied</div><div><b>${Object.values(a.pq).reduce((s,x)=>s+x,0)}</b>questions done</div><div><b>${Math.round(M.pct*100)}%</b>plan complete</div><div><b>${streak(M)}</b>day streak</div></div></section>`;
+  h+=`<section class="card"><h3>By topic</h3><p class="small muted" style="margin-top:-4px">Accuracy shows after 10 graded questions. Weak topics get more practice and revision automatically.</p><div class="scroll"><table><thead><tr><th>Topic</th><th>Concepts</th><th>Questions</th><th>Accuracy</th><th>Open mistakes</th></tr></thead><tbody>`;
+  for(const sec of SECS){h+=`<tr><td colspan="5">${chip(sec)}<b>${SECTION[sec]}</b></td></tr>`;
+    for(const T of TOPICS.filter(t=>t.s===sec)){const g=M.ctx.tg[T.id],t=M.rAll.t[T.id];const fin=!!state.conceptDone[T.id];const cd=fin?g.c:Math.min(g.c,a.concept[T.id]||0),qd=a.pq[T.id]||0;
+      const acc=t.acc;const cls=acc==null?'':acc<.6?'low':acc<.75?'mid':'high';
+      h+=`<tr><td>${esc(T.n)}</td><td><div class="meter"><i style="width:${g.c?cd/g.c*100:100}%"></i></div><button class="btn ghost sm" data-act="cdone" data-tp="${T.id}">${fin?'Done · undo':'Mark done'}</button></td><td class="small">${qd} / ${g.q}</td><td>${acc==null?'<span class="muted small">—</span>':`<div class="meter ${cls}"><i style="width:${acc*100}%"></i></div><span class="small">${Math.round(acc*100)}%</span>`}</td><td class="small">${t.open||''}</td></tr>`}}
+  return h+`</tbody></table></div></section>`;
+}
+
+/* --- Mistakes --- */
+const MKIND={concept:'Concept gap',careless:'Careless error',timing:'Ran out of time',misread:'Misread the question'};
+function viewMistakes(M){
+  const list=state.mistakes.slice().sort((a,b)=>b.d.localeCompare(a.d));
+  const shown=list.filter(m=>ui.mfilter==='all'||(ui.mfilter==='open'?!m.fixed:m.fixed));const open=list.filter(m=>!m.fixed).length;
+  let h=`<section class="card mb"><h3>Add a mistake</h3>
+  <div class="row"><label class="f">Topic<select id="m-tp">${SECS.map(sec=>`<optgroup label="${SECTION[sec]}">${TOPICS.filter(t=>t.s===sec).map(t=>`<option value="${t.id}">${esc(t.n)}</option>`).join('')}</optgroup>`).join('')}</select></label><label class="f">Why it went wrong<select id="m-k">${Object.entries(MKIND).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label></div>
+  <label class="f" style="margin-top:10px">What to remember<textarea id="m-n" rows="2" style="width:100%" placeholder="e.g. Check whether n can be zero before dividing"></textarea></label>
+  <div style="margin-top:10px"><button class="btn primary" data-act="add-mistake">Add to log</button></div>
+  <p class="small muted" style="margin:10px 0 0">Each open mistake adds 10 minutes of targeted revision to its topic.</p></section>
+  <section class="card"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">${open} open</h3><div>${['open','fixed','all'].map(f=>`<button class="btn sm ${ui.mfilter===f?'primary':'ghost'}" data-act="mfilter" data-f="${f}">${f[0].toUpperCase()+f.slice(1)}</button>`).join(' ')}</div></div>`;
+  if(!shown.length)h+=`<div class="empty">${ui.mfilter==='open'?'No open mistakes. Add one whenever a question trips you up.':'Nothing here yet.'}</div>`;
+  else h+='<div class="days-list">'+shown.map(m=>`<div class="dayrow"><div class="dt"><b>${nice(m.d)}</b>${esc(MKIND[m.k]||m.k)}</div><div class="small"><div>${chip(TM[m.tp].s)}<b>${esc(topicLabel(m.tp))}</b></div><div>${esc(m.n)}</div><div style="margin-top:8px"><button class="btn sm" data-act="fix" data-id="${esc(m.id)}">${m.fixed?'Reopen':'Mark fixed'}</button> <button class="btn ghost danger sm" data-act="del-mistake" data-id="${esc(m.id)}">Delete</button></div></div></div>`).join('')+'</div>';
+  return h+'</section>';
+}
+
+/* --- Mocks --- */
+function viewMocks(M){
+  const sc=state.mockScores.slice().sort((a,b)=>a.d.localeCompare(b.d));
+  const upcoming=[];for(const x of M.cal.days){if(x.d<M.startFrom)continue;const ts=x.d===M.startFrom?M.keyed.map(k=>k.t):(M.proj.plan[x.d]||[]);if(ts.some(t=>t.t==='mock'))upcoming.push(x.d)}
+  let h=`<div class="grid g2e mb"><section class="card"><h3>Score trend</h3>${scoreChart(sc,+M.S.targetScore)}</section>
+  <section class="card"><h3>Upcoming mocks</h3>${upcoming.length?'<div class="small">'+upcoming.map(d=>`<div>${niceW(d)}</div>`).join('')+'</div>':'<p class="muted small">No more mocks scheduled.</p>'}
+  <p class="small muted">You can take a mock earlier than scheduled. Log it below and the remaining mock dates shift back.</p></section></div>`;
+  h+=`<section class="card mb"><h3>Log a mock test</h3><div class="row">
+  <label class="f">Date<input type="date" id="s-d" value="${M.today}" max="${M.today}"></label><label class="f">Total<span>205–805</span><input type="number" id="s-t" min="205" max="805"></label><label class="f">Quant<span>60–90</span><input type="number" id="s-q" min="60" max="90"></label><label class="f">Verbal<span>60–90</span><input type="number" id="s-v" min="60" max="90"></label><label class="f">DI<span>60–90</span><input type="number" id="s-di" min="60" max="90"></label>
+  <button class="btn primary" data-act="add-score">Save mock</button></div><div id="s-err" class="err-text"></div></section>`;
+  h+=`<section class="card"><h3>All mocks</h3>${sc.length?`<div class="scroll"><table><thead><tr><th>Date</th><th>Total</th><th>Quant</th><th>Verbal</th><th>DI</th><th></th></tr></thead><tbody>${sc.slice().reverse().map(s=>`<tr><td>${nice(s.d)}</td><td><b>${s.t??'—'}</b></td><td>${s.q??'—'}</td><td>${s.v??'—'}</td><td>${s.di??'—'}</td><td><button class="btn ghost danger sm" data-act="del-score" data-id="${esc(s.id)}">Delete</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Your diagnostic mock is the first on the schedule. Its score sets your baseline.</div>'}</section>`;
+  return h;
+}
+function scoreChart(sc,target){
+  const pts=sc.filter(s=>s.t);if(!pts.length)return '<div class="empty">Scores appear here after your first mock.</div>';
+  const W=420,H=190,pl=38,pr=12,pt=14,pb=26;const vals=pts.map(p=>p.t).concat([target]);const lo=Math.max(205,Math.min(...vals)-40),hi=Math.min(805,Math.max(...vals)+40);
+  const x=i=>pl+(pts.length===1?(W-pl-pr)/2:i*(W-pl-pr)/(pts.length-1)),y=v=>pt+(1-(v-lo)/(hi-lo||1))*(H-pt-pb);
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Mock score trend">
+  ${[lo,hi].map(t=>`<line x1="${pl}" x2="${W-pr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${t}</text>`).join('')}
+  <line x1="${pl}" x2="${W-pr}" y1="${y(target)}" y2="${y(target)}" stroke="var(--accent-line)" stroke-dasharray="5 4"/><text x="${W-pr}" y="${y(target)-5}" text-anchor="end" font-size="11" fill="var(--accent-line)">target ${target}</text>
+  <polyline fill="none" stroke="var(--accent-line)" stroke-width="2.5" points="${pts.map((p,i)=>x(i)+','+y(p.t)).join(' ')}"/>
+  ${pts.map((p,i)=>`<circle cx="${x(i)}" cy="${y(p.t)}" r="5" fill="var(--accent)" stroke="var(--accent-line)" stroke-width="2"/><text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${nice(p.d)}</text>`).join('')}
+  </svg></div>`;
+}
+
+/* --- Backup --- */
+function viewBackup(){
+  const last=state.lastExport;
+  return `<section class="card mb"><h3>How your data is saved</h3><p style="margin:0">Everything is saved in this browser on this device. Nothing is sent anywhere and there is no account. Clearing your browser data, or using a private window, will erase it, so export a backup regularly.</p></section>
+  <section class="card mb"><h3>Export a backup</h3><p class="small muted" style="margin-top:-4px">Downloads one file with your plan settings, study log, mistakes and mock scores.${last?` Last export: ${niceW(last)}.`:' You haven’t exported yet.'}</p><button class="btn primary" data-act="export">Export backup file</button></section>
+  <section class="card mb"><h3>Import a backup</h3><p class="small muted" style="margin-top:-4px">Replaces everything on this device with the contents of a backup file.</p>
+  <div class="row"><input type="file" id="bk-file" accept=".json,application/json"><button class="btn primary" data-act="import">Import</button></div>
+  <p class="${ui.bkOk?'small':'err-text'}" style="margin:10px 0 0">${esc(ui.bkMsg)}</p></section>
+  <section class="card mb"><h3>Using it on another device</h3><p style="margin:0">Copy this HTML file to the other device (email it to yourself or put it in cloud storage) and open it in a browser. Then, each time you switch devices: export on the device you just used, move the backup file over, and import it on the other one. Always import the newest backup, since importing replaces what’s there.</p></section>
+  <section class="card"><h3>Start over</h3><p class="small muted" style="margin-top:-4px">Clears the study log, mistakes and mock scores on this device. Your plan settings are kept.</p><button class="btn danger" data-act="reset">Clear all progress</button></section>`;
+}
+
+/* --- actions --- */
+document.addEventListener('change',e=>{
+  if(e.target.id==='l-sec'){ui.logSec=e.target.value;document.getElementById('l-tp-wrap').innerHTML=topicSelect('l-tp',ui.logSec)}
+});
+const val=id=>{const el=document.getElementById(id);return el?el.value:''};
+const num=id=>{const v=val(id);return v===''?null:+v};
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;const today=localToday();
+  const M=model(state,today);const find=k=>M.keyed.find(x=>x.k===k);
+  if(act==='toggle'){const k=b.dataset.k;const idx=state.log.findIndex(x=>x.d===M.startFrom&&x.k===k);
+    if(idx>=0){state.log.splice(idx,1);commit();return}
+    const x=find(k);if(!x)return;
+    if(x.t.t==='practice'||x.t.t==='mock'){ui.openTask=k;render();const f=document.querySelector('#f-c,#f-total');f&&f.focus();return}
+    state.log.push({id:rid(),d:M.startFrom,k,t:x.t.t,tp:x.t.tp||null,m:x.t.m});commit();return}
+  if(act==='cancel'){ui.openTask=null;render();return}
+  if(act==='save-task'){const k=b.dataset.k;const x=find(k);if(!x)return;
+    if(x.t.t==='practice'){const q=Math.max(1,num('f-q')||x.t.q);let c=num('f-c');if(c!=null)c=Math.max(0,Math.min(q,c));state.log.push({id:rid(),d:M.startFrom,k,t:'practice',tp:x.t.tp,m:Math.round(q*mpq(x.t.tp)),q,c})}
+    else{const t=num('f-total');state.log.push({id:rid(),d:M.startFrom,k,t:'mock',tp:null,m:MOCK_MIN});
+      if(t!=null)state.mockScores.push({id:rid(),d:M.startFrom,t:Math.max(205,Math.min(805,t)),q:num('f-sq'),v:num('f-sv'),di:num('f-sd')})}
+    ui.openTask=null;commit();return}
+  if(act==='pull'){const nx=nextAhead(M);if(!nx)return;const t={t:nx.t,tp:nx.tp||null,m:nx.m};if(nx.q)t.q=nx.q;
+    const arr=(state.pulled[M.startFrom]||[]).slice();arr.push(t);state.pulled[M.startFrom]=arr;
+    for(const d of Object.keys(state.pulled))if(d<addDays(today,-30))delete state.pulled[d];commit();return}
+  if(act==='log-save'){const d=val('l-d'),tp=val('l-tp');const cs=document.getElementById('l-cs').checked,cf=document.getElementById('l-cf').checked;
+    const cm=num('l-cm'),q=num('l-q'),c=num('l-c'),qm=num('l-qm');
+    ui.logOk=false;if(!isDate(d)||d>today){ui.logMsg='Pick today or an earlier date.';render();return}
+    if(!cs&&!cf&&!(q>0)){ui.logMsg='Tick “I studied concepts” or enter the number of questions you solved.';render();return}
+    if(cs&&!(cm>0)){ui.logMsg='Enter how many minutes you spent on concepts.';render();return}
+    if(c!=null&&(q==null||c<0||c>q)){ui.logMsg='Correct answers must be between 0 and the questions solved.';render();return}
+    const k='manual|'+rid();
+    if(cs)state.log.push({id:rid(),d,k:k+'|c',t:'concept',tp,m:cm});
+    if(q>0)state.log.push({id:rid(),d,k:k+'|q',t:'practice',tp,q,c,m:qm>0?qm:Math.round(q*mpq(tp))});
+    if(cf)state.conceptDone[tp]=true;
+    ui.logMsg='Saved for '+niceW(d)+'.';ui.logOk=true;commit();return}
+  if(act==='del-log'){state.log=state.log.filter(x=>x.id!==b.dataset.id);commit();return}
+  if(act==='cdone'){const tp=b.dataset.tp;if(state.conceptDone[tp])delete state.conceptDone[tp];else state.conceptDone[tp]=true;commit();return}
+  if(act==='add-mistake'){state.mistakes.push({id:rid(),d:today,tp:val('m-tp'),k:val('m-k'),n:val('m-n').trim().slice(0,600),fixed:false});commit();return}
+  if(act==='fix'){const m=state.mistakes.find(x=>x.id===b.dataset.id);if(m){m.fixed=!m.fixed;commit()}return}
+  if(act==='del-mistake'){state.mistakes=state.mistakes.filter(x=>x.id!==b.dataset.id);commit();return}
+  if(act==='mfilter'){ui.mfilter=b.dataset.f;render();return}
+  if(act==='add-score'){const t=num('s-t'),d=val('s-d');const err=document.getElementById('s-err');
+    if(!isDate(d)||d>today||t==null||t<205||t>805){err.textContent='Enter a date up to today and a total between 205 and 805.';return}
+    for(const id of ['s-q','s-v','s-di']){const v=num(id);if(v!=null&&(v<60||v>90)){err.textContent='Section scores run from 60 to 90.';return}}
+    state.mockScores.push({id:rid(),d,t,q:num('s-q'),v:num('s-v'),di:num('s-di')});
+    state.log.push({id:rid(),d,k:'manual|mock|'+rid(),t:'mock',tp:null,m:MOCK_MIN});commit();return}
+  if(act==='del-score'){state.mockScores=state.mockScores.filter(x=>x.id!==b.dataset.id);commit();return}
+  if(act==='move-exam'){const d=b.dataset.d;if(!confirm('Move your exam to '+niceW(d)+' '+d.slice(0,4)+'? The whole plan will recalculate.'))return;
+    const S=state.settings;S.exam=d;if(Array.isArray(S.blocks)&&S.blocks.length&&S.blocks.some(x=>x.to>addDays(d,-21)))S.blocks=null;commit();return}
+  if(act==='edit-plan'){ui.editPlan=true;ui.planErr='';render();return}
+  if(act==='cancel-plan'){ui.editPlan=false;ui.planErr='';render();return}
+  if(act==='save-plan'){
+    const n={start:val('st-start'),exam:val('st-exam'),breakStart:val('st-break'),avail:WD.map((_,i)=>Math.max(0,Math.min(600,+val('st-a'+i)||0))),
+      bufferDays:Math.max(0,Math.min(14,+val('st-buf')||0)),lightDays:Math.max(1,Math.min(5,+val('st-light')||1)),mocks:Math.max(2,Math.min(10,+val('st-mocks')||2)),
+      timedSets:Math.max(0,Math.min(30,+val('st-sets')||0)),targetScore:Math.max(205,Math.min(805,+val('st-target')||655)),blocks:null,tg:{}};
+    let err='';
+    if(!isDate(n.start)||!isDate(n.exam)||!isDate(n.breakStart))err='Fill in the start, exam and break dates.';
+    else if(diff(n.start,n.exam)<42)err='Leave at least six weeks between start and exam.';
+    else if(n.breakStart<n.start||(n.breakStart<n.exam&&addDays(n.breakStart,6)>=addDays(n.exam,-14)))err='The break has to start after your start date and end at least two weeks before the exam.';
+    else if(n.avail.every(x=>x===0))err='Set study time for at least one day of the week.';
+    if(!err&&!document.getElementById('st-auto').checked){
+      const bl=[0,1,2].map(i=>({s:val('bk-s'+i),from:val('bk-f'+i),to:val('bk-t'+i)})).sort((a,b)=>a.from.localeCompare(b.from));
+      if(bl.some(x=>!isDate(x.from)||!isDate(x.to)))err='Give every section block a start and end date.';
+      else if(new Set(bl.map(x=>x.s)).size!==3)err='Use each section once: Quant, Verbal and Data Insights.';
+      else if(bl.some(x=>x.to<x.from))err='Each block must end on or after its start date.';
+      else if(bl.some(x=>diff(x.from,x.to)<6))err='Give each section block at least a week.';
+      else if(bl[0].from<n.start)err='Blocks can’t start before your start date.';
+      else if(bl[1].from<=bl[0].to||bl[2].from<=bl[1].to)err='Section blocks can’t overlap.';
+      else if(bl[2].to>addDays(n.exam,-21))err='End the last block at least three weeks before the exam to leave room for revision and mocks.';
+      n.blocks=bl;
+    }
+    for(const T of TOPICS){const c=Math.max(0,Math.min(2000,+val('tg-c-'+T.id)||0)),q=Math.max(0,Math.min(1000,+val('tg-q-'+T.id)||0));if(c!==T.c||q!==T.q)n.tg[T.id]={c,q}}
+    ui.planErr=err;if(err){render();return}
+    state.settings=n;ui.editPlan=false;commit();return}
+  if(act==='export'){state.lastExport=today;try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}
+    const blob=new Blob([JSON.stringify({app:'gmat-planner',exported:new Date().toISOString(),data:state},null,1)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gmat-backup-'+today+'.json';document.body.appendChild(a);a.click();
+    setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);render();return}
+  if(act==='import'){const f=document.getElementById('bk-file').files[0];if(!f){ui.bkOk=false;ui.bkMsg='Choose a backup file first.';render();return}
+    const rd=new FileReader();rd.onload=()=>{try{const j=JSON.parse(rd.result);const d=j&&j.app==='gmat-planner'?j.data:null;
+        if(!d||!d.settings||!Array.isArray(d.log))throw new Error('bad');
+        if(!confirm('Replace everything on this device with the backup from '+(j.exported?j.exported.slice(0,10):'this file')+'?'))return;
+        state=normalize(d);ui.bkOk=true;ui.bkMsg='Backup imported. '+state.log.length+' log entries loaded.';commit()}
+      catch(e){ui.bkOk=false;ui.bkMsg='That file isn’t a GMAT planner backup. Choose a file exported from this planner.';render()}};
+    rd.readAsText(f);return}
+  if(act==='reset'){if(!confirm('Clear the study log, mistakes and mock scores on this device?'))return;state.log=[];state.mistakes=[];state.mockScores=[];state.pulled={};state.conceptDone={};commit();return}
+});
+
+render();
+</script>
+</body>
+</html>
