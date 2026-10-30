@@ -68,7 +68,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .facts{display:flex;flex-wrap:wrap;gap:8px 26px;font-size:.92rem;color:var(--muted)}
 .facts b{display:block;font-size:1.05rem;color:var(--ink)}
 .pill{display:inline-block;padding:3px 12px;border-radius:999px;font-weight:800;font-size:.85rem}
-.pill.on{background:var(--on-bg);color:var(--on)}.pill.risk{background:var(--risk-bg);color:var(--risk)}.pill.behind{background:var(--behind-bg);color:var(--behind)}.pill.idle{background:var(--gap);color:var(--muted)}
+.pill.on{background:var(--on-bg);color:var(--on)}.pill.risk{background:var(--risk-bg);color:var(--risk)}.pill.behind{background:var(--behind-bg);color:var(--behind)}.pill.prog{background:var(--sq);color:var(--ink)}.pill.next{background:var(--buf);color:var(--ink)}.pill.high{background:var(--behind-bg);color:var(--behind)}.pill.med{background:var(--risk-bg);color:var(--risk)}.pill.rev{background:var(--p4);color:var(--ink)}.pill.idle{background:var(--gap);color:var(--muted)}
 .ribbon{position:relative;margin:24px 0 30px}
 .bar{display:flex;height:34px;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
 .seg{height:100%;min-width:2px}
@@ -135,6 +135,7 @@ th{font-weight:700;color:var(--muted);font-size:.82rem}
 .empty{padding:22px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:14px}
 .blockrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
 @media(max-width:560px){.dayrow{grid-template-columns:1fr}.wrap{padding:14px 12px 56px}.blockrow{grid-template-columns:1fr}}
+.dash h3{margin-bottom:4px}.dash .sub{margin:0 0 12px;color:var(--muted);font-size:.86rem}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}.up{color:var(--on);font-weight:800}.down{color:var(--behind);font-weight:800}.flat{color:var(--muted)}.list-plain{margin:0;padding-left:18px;font-size:.9rem}.list-plain li{margin:3px 0}
 .entry{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
 .entry:last-child{border-bottom:0}
 </style>
@@ -177,35 +178,39 @@ const ALL=new Set(SECS);
 const SECTION={Quant:'Quantitative Reasoning',Verbal:'Verbal Reasoning','Data Insights':'Data Insights'};
 const SCLS={Quant:'Quant',Verbal:'Verbal','Data Insights':'DI'};
 const SSEG={Quant:'sq',Verbal:'sv','Data Insights':'sd'};
-const TOPICS=[
- {id:'q-arith',s:'Quant',n:'Arithmetic, fractions & percents',c:180,q:70},
- {id:'q-num',s:'Quant',n:'Number properties',c:240,q:80},
- {id:'q-alg',s:'Quant',n:'Algebra & equations',c:240,q:90},
- {id:'q-ineq',s:'Quant',n:'Inequalities & absolute value',c:150,q:50},
- {id:'q-word',s:'Quant',n:'Word problems: rates, work, mixtures',c:240,q:80},
- {id:'q-stat',s:'Quant',n:'Statistics & sets',c:150,q:50},
- {id:'q-count',s:'Quant',n:'Counting & probability',c:180,q:60},
- {id:'q-seq',s:'Quant',n:'Exponents, roots & sequences',c:150,q:50},
- {id:'v-cr1',s:'Verbal',n:'CR: assumption, strengthen, weaken',c:240,q:90},
- {id:'v-cr2',s:'Verbal',n:'CR: inference, evaluate, paradox, boldface',c:180,q:70},
- {id:'v-rc1',s:'Verbal',n:'RC: main idea & structure',c:180,q:60},
- {id:'v-rc2',s:'Verbal',n:'RC: detail & inference',c:150,q:60},
- {id:'d-ds',s:'Data Insights',n:'Data sufficiency',c:240,q:90},
- {id:'d-ta',s:'Data Insights',n:'Table analysis',c:120,q:40},
- {id:'d-gi',s:'Data Insights',n:'Graphics interpretation',c:120,q:40},
- {id:'d-tpa',s:'Data Insights',n:'Two-part analysis',c:150,q:50},
- {id:'d-msr',s:'Data Insights',n:'Multi-source reasoning',c:150,q:40},
+const RAW=[
+ ['Quant','Arithmetic','OG 2025–26 Ch 3 · Manhattan Quant',60,20,[['ar-num','Numbers and number line','3.1',21],['ar-val','Value, order and factors','3.1',22],['ar-frac','Fractions & decimals','3.1',24],['ar-pct','Percentages','3.3',44],['ar-ratio','Ratios & proportions','3.3',46],['ar-exp','Exponents & roots','3.2',32],['ar-abs','Absolute value','3.2',34]]],
+ ['Quant','Algebra','OG 2025–26 Ch 3 · Manhattan Quant',60,20,[['al-lin','Linear equations','3.2',30],['al-ineq','Inequalities','3.2',30],['al-quad','Quadratics','3.2',30],['al-exp','Exponents & roots (algebraic)','3.2',30],['al-fn','Functions','3.2',30],['al-seq','Sequences & series','3.4',55]]],
+ ['Quant','Word problems','OG 2025–26 Ch 4 · Manhattan Quant',60,20,[['wp-tsd','Time, speed & distance','4.1',79],['wp-work','Work & rates','4.1',79],['wp-mix','Mixtures','4.1',79],['wp-pl','Profit & loss','4.1',79],['wp-wavg','Weighted averages','3.4',54]]],
+ ['Quant','Number properties','OG 2025–26 Ch 3 · Manhattan Quant',60,20,[['np-div','Divisibility rules','3.1',21],['np-prime','Prime numbers','3.1',21],['np-lcm','LCM & GCD','3.1',21],['np-rem','Remainders','3.1',21],['np-oe','Odd/even, positive/negative','3.1',21]]],
+ ['Quant','Statistics, sets & probability','OG 2025–26 Ch 3 · Manhattan Quant',60,20,[['st-mean','Mean, median, mode & range','3.4',54],['st-sd','Standard deviation (conceptual)','3.4',56],['st-sets','Sets & Venn diagrams','3.4',58],['st-perm','Permutations & combinations','3.4',59],['st-prob','Probability, basic & compound','3.4',61]]],
+ ['Verbal','Verbal review (OG foundation)','OG 2025–26 §7',45,10,[['vr-pass','Analyzing passages','7.1',401],['vr-ind','Inductive reasoning','7.2',408],['vr-ded','Deductive reasoning','7.3',414]]],
+ ['Verbal','Critical reasoning','OG 2025–26 §8.1 · Manhattan Verbal',45,25,[['cr-struct','Argument structure & components','8.1',425],['cr-assume','Assumption questions','8.1',425],['cr-str','Strengthen questions','8.1',425],['cr-weak','Weaken questions','8.1',425],['cr-infer','Inference questions','8.1',425],['cr-eval','Evaluate questions','8.1',425],['cr-bold','Bold-face questions','8.1',425],['cr-flaw','Flaw & paradox','8.1',425]]],
+ ['Verbal','Reading comprehension','OG 2025–26 §8.3 · Manhattan Verbal',45,20,[['rc-map','Passage mapping strategy','8.0',424],['rc-main','Main idea questions','8.3',432],['rc-inf','Inference questions','8.3',432],['rc-detail','Detail & specific info','8.3',432],['rc-tone','Tone & author purpose','8.3',432],['rc-long','Long passage tactics','8.3',432]]],
+ ['Data Insights','Data interpretation','OG 2025–26 §6.0–6.1',45,20,[['di-tables','Tables: read & compare','6.0',246],['di-bar','Bar graphs','6.0',246],['di-line','Line graphs & trends','6.0',246],['di-msr','Multi-source reasoning','6.1',247],['di-tpa','Two-part analysis','6.1',247],['di-gi','Graphics interpretation','6.1',247]]],
+ ['Data Insights','Data sufficiency','OG 2025–26 §6.4–6.6 · Manhattan',60,25,[['ds-struct','DS structure & strategy','6.4',258],['ds-yn','Yes/no questions','6.4',258],['ds-val','Value-based questions','6.5',275],['ds-adv','Advanced logic & traps','6.6',276]]],
+ ['Data Insights','Statistics in data','OG 2025–26 §6.0',30,15,[['dst-mean','Mean, median, mode','6.0',249],['dst-sd','Range & standard deviation','6.0',249],['dst-norm','Normal distribution (basic)','6.0',249]]],
 ];
+const TOPICS=[];for(const [s,g,src,c,q,list] of RAW)for(const [id,n,ch,pg] of list)TOPICS.push({id,s,g,n,ch,pg,src,c,q});
+const GROUPS=[];for(const r of RAW)GROUPS.push({s:r[0],g:r[1]});
+const OLDMAP={'q-arith':'ar-frac','q-num':'np-div','q-alg':'al-lin','q-ineq':'al-ineq','q-word':'wp-tsd','q-stat':'st-mean','q-count':'st-perm','q-seq':'al-seq','v-cr1':'cr-assume','v-cr2':'cr-infer','v-rc1':'rc-main','v-rc2':'rc-detail','d-ds':'ds-struct','d-ta':'di-tables','d-gi':'di-gi','d-tpa':'di-tpa','d-msr':'di-msr'};
 const TM=Object.fromEntries(TOPICS.map(t=>[t.id,t]));
 const ORDER=TOPICS.map(t=>t.id);
 const mpq=id=>TM[id].s==='Data Insights'?3:2.5;
 const MOCK_MIN=195,SET_MIN=45,LIGHT_MIN=45;
 
-const DEFAULTS={v:2,settings:{start:'2026-10-30',exam:'2027-02-28',breakStart:'2026-12-21',avail:[240,120,120,120,120,120,240],bufferDays:5,lightDays:2,mocks:6,timedSets:10,targetScore:655,blocks:null,tg:{}},log:[],mistakes:[],mockScores:[],pulled:{},conceptDone:{}};
+const DEFAULTS={v:2,settings:{start:'2026-10-30',exam:'2027-02-28',breakStart:'2026-12-21',avail:[240,120,120,120,120,120,240],bufferDays:5,lightDays:2,mocks:6,timedSets:10,targetScore:655,tQ:82,tV:82,tD:82,blocks:null,tg:{}},log:[],mistakes:[],mockScores:[],pulled:{},conceptDone:{}};
 const clone=o=>JSON.parse(JSON.stringify(o));
+const KMAP={concept:'concept',careless:'careless',timing:'time',misread:'trap',trap:'trap',time:'time',mixed:'mixed'};
 function normalize(d){const s=clone(DEFAULTS);const x=d?clone(d):{};
   const st=Object.assign(s.settings,x.settings||{});if(!st.tg||typeof st.tg!=='object')st.tg={};
-  return {v:2,settings:st,log:Array.isArray(x.log)?x.log:[],mistakes:Array.isArray(x.mistakes)?x.mistakes:[],mockScores:Array.isArray(x.mockScores)?x.mockScores:[],pulled:x.pulled&&typeof x.pulled==='object'?x.pulled:{},conceptDone:x.conceptDone&&typeof x.conceptDone==='object'?x.conceptDone:{},lastExport:isDate(x.lastExport)?x.lastExport:null}}
+  for(const k of Object.keys(st.tg))if(!TM[k])delete st.tg[k];
+  const fix=tp=>tp&&OLDMAP[tp]?OLDMAP[tp]:tp;
+  const log=(Array.isArray(x.log)?x.log:[]).map(e=>Object.assign(e,{tp:fix(e.tp)})).filter(e=>!e.tp||TM[e.tp]);
+  const mistakes=(Array.isArray(x.mistakes)?x.mistakes:[]).map(m=>Object.assign(m,{tp:fix(m.tp),k:KMAP[m.k]||'mixed'})).filter(m=>TM[m.tp]);
+  const cd={};const xc=x.conceptDone&&typeof x.conceptDone==='object'?x.conceptDone:{};for(const k in xc)if(TM[fix(k)])cd[fix(k)]=true;
+  const pulled={};const xp=x.pulled&&typeof x.pulled==='object'?x.pulled:{};for(const d in xp)pulled[d]=(xp[d]||[]).map(t=>Object.assign(t,{tp:fix(t.tp)})).filter(t=>!t.tp||TM[t.tp]);
+  return {v:3,settings:st,log,mistakes,mockScores:Array.isArray(x.mockScores)?x.mockScores:[],pulled,conceptDone:cd,lastExport:isDate(x.lastExport)?x.lastExport:null}}
 function targets(S){const o={};for(const T of TOPICS){const v=(S.tg||{})[T.id]||{};o[T.id]={c:v.c!=null?+v.c:T.c,q:v.q!=null?+v.q:T.q}}return o}
 
 /* ---------- calendar ---------- */
@@ -273,7 +278,7 @@ function remaining(ctx,a,st){
   const r={t:{},setsLeft:Math.max(0,+ctx.S.timedSets-a.sets)};
   for(const T of TOPICS){const id=T.id,g=ctx.tg[id],pqDone=a.pq[id]||0,fq=Math.round(g.q*.3/5)*5,acc=accOf(a,id);
     const open=st.mistakes.filter(m=>m.tp===id&&!m.fixed).length;
-    const revT=45+(acc==null?20:acc<.6?90:acc<.75?45:0)+Math.min(60,open*10);
+    const revT=20+(acc==null?10:acc<.6?40:acc<.75?20:0)+Math.min(40,open*10);
     r.t[id]={c:st.conceptDone[id]?0:Math.max(0,g.c-(a.concept[id]||0)),fq:Math.max(0,fq-pqDone),pq:Math.max(0,g.q-Math.max(pqDone,fq)),rv:Math.max(0,revT-(a.rev[id]||0)),acc,open,revT}}
   return r;
 }
@@ -416,15 +421,15 @@ function dayLabel(c){if(!c)return '';
 function phaseNow(M){const c=M.cal.by[M.today];if(M.today<M.S.start)return 'Starts '+nice(M.S.start);if(M.today>=M.S.exam)return 'Exam day reached';if(c&&c.kind==='off')return 'Rest day';return dayLabel(c)||'—'}
 function prepDayNo(M){let n=0;for(const x of M.cal.days){if(x.d>M.today)break;if(x.kind!=='break')n++}return n}
 function prepDaysLeft(M){return M.cal.days.filter(x=>x.d>=M.today&&x.kind!=='break'&&x.kind!=='off').length}
-const topicLabel=id=>id&&TM[id]?TM[id].n:'';
+const topicLabel=id=>id&&TM[id]?TM[id].g+' · '+TM[id].n:'';
 const chip=s=>`<span class="chip ${SCLS[s]}">${s==='Data Insights'?'DI':s}</span>`;
 function taskText(t){
   const T=t.tp?TM[t.tp]:null;
   switch(t.t){
-    case 'concept':return ['Concept review — '+t.m+' min',T.n];
-    case 'practice':return ['Practice — '+t.q+' questions',T.n+' · about '+hm(t.m)];
+    case 'concept':return ['Concept review — '+t.m+' min',T.g+' · '+T.n];
+    case 'practice':return ['Practice — '+t.q+' questions',T.g+' · '+T.n+' · about '+hm(t.m)];
     case 'review':return ['Review mistakes — '+t.m+' min','Work through open entries in your mistake log'];
-    case 'revision':return ['Targeted revision — '+t.m+' min',T.n];
+    case 'revision':return ['Targeted revision — '+t.m+' min',T.g+' · '+T.n];
     case 'set':return ['Timed mixed set — 45 min','Mixed questions across all three sections, strict timing'];
     case 'mock':return ['Full-length mock test + analysis','2h 15m test, then about an hour reviewing every miss'];
     case 'light':return ['Light review — 45 min','Formula sheet, mistake log highlights, pacing plan. No new topics.'];
@@ -435,7 +440,7 @@ function taskText(t){
 function focusLine(tasks){
   const main=tasks.find(t=>t.tp&&(t.t==='concept'||t.t==='practice'||t.t==='revision'));
   if(tasks.some(t=>t.t==='mock'))return '<span class="sec">Full-length</span> → Mock test day';
-  if(main){const T=TM[main.tp];return `<span class="sec">${SECTION[T.s]}</span> → ${esc(T.n)}`}
+  if(main){const T=TM[main.tp];return `<span class="sec">${SECTION[T.s]} → ${esc(T.g)}</span> → ${esc(T.n)}`}
   if(tasks.some(t=>t.t==='set'))return '<span class="sec">Mixed</span> → Timed practice';
   if(tasks.some(t=>t.t==='light'))return '<span class="sec">Final days</span> → Light review';
   return 'Nothing scheduled';
@@ -464,7 +469,8 @@ function viewToday(M){
     <div class="facts"><div><b>${prepDaysLeft(M)}</b>prep days left (break excluded)</div><div><b>${esc(phaseNow(M))}</b>current phase</div><div><b>${Math.round(M.pct*100)}%</b>of the plan done</div><div><b>${pill(M.status)}</b>status</div></div></div>
     ${ribbon(M)}</section>`;
   h+=statusNote(M);
-  h+=`<div class="grid g2"><section class="card focus">${focusCard(M)}</section><aside class="grid" style="align-content:start">${sideCards(M)}</aside></div>`;
+  h+=`<div class="grid g2 mb"><section class="card focus">${focusCard(M)}</section><aside class="grid" style="align-content:start">${sideCards(M)}</aside></div>`;
+  h+=dashboard(M);
   return h;
 }
 function statusNote(M){
@@ -523,6 +529,86 @@ function streak(M){const ds=new Set(state.log.map(e=>e.d));let s=0;let d=ds.has(
   for(let i=0;i<400;i++){const c=M.cal.by[d];if(!c)break;if(c.kind==='break'||c.kind==='off'){d=addDays(d,-1);continue}if(ds.has(d)){s++;d=addDays(d,-1)}else break}return s}
 function weekMinutes(M){const mon=addDays(M.today,-((dow(M.today)+6)%7));return state.log.filter(e=>e.d>=mon&&e.d<=M.today).reduce((s,e)=>s+(+e.m||0),0)}
 
+
+/* --- dashboard helpers --- */
+const EKIND={concept:['Concept','high','High'],careless:['Careless','med','Medium'],trap:['Trap','high','High'],time:['Time','med','Medium'],mixed:['Mixed','rev','Review']};
+const MOCKSRC=['GMAT Official Practice Exam 1 (free, mba.com)','GMAT Official Practice Exam 2 (free, mba.com)','GMAT Official Practice Exam 3','GMAT Official Practice Exam 4','GMAT Official Practice Exam 5','GMAT Official Practice Exam 6','Manhattan Prep CAT','Magoosh full mock','Veritas Prep CAT','Target Test Prep CAT','GMAT Club CAT','Official exam retake','Other'];
+function topicProg(M,id){const g=M.ctx.tg[id],a=M.aAll;
+  const cf=state.conceptDone[id]?1:g.c?Math.min(1,(a.concept[id]||0)/g.c):1;const qf=g.q?Math.min(1,(a.pq[id]||0)/g.q):1;
+  const pct=Math.round((cf*.5+qf*.5)*100);return {pct,status:pct>=100?'Done':pct>0?'In progress':'Not started',cf,qf}}
+function topicPattern(id){const c={};for(const m of state.mistakes)if(m.tp===id)c[m.k]=(c[m.k]||0)+1;const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return top?EKIND[top[0]][0]+' ('+top[1]+')':'—'}
+function secStats(M,sec){const ts=TOPICS.filter(t=>t.s===sec);const ps=ts.map(t=>topicProg(M,t.id));const a=M.aAll;
+  let q=0,qa=0,cor=0,cm=0;for(const t of ts){q+=a.pq[t.id]||0;qa+=a.qa[t.id]||0;cor+=a.cor[t.id]||0;cm+=a.concept[t.id]||0}
+  return {pct:Math.round(ps.reduce((x,p)=>x+p.pct,0)/ts.length),done:ps.filter(p=>p.status==='Done').length,total:ts.length,q,acc:qa>=10?cor/qa:null,cm,inprog:ps.filter(p=>p.status==='In progress').length}}
+function dateStatus(M,from,to,list){if(M.today>to)return ['on','Done'];if(M.today>=from)return ['prog','In progress'];const nxt=list.filter(r=>r.from>M.today).sort((a,b)=>a.from.localeCompare(b.from))[0];return nxt&&nxt.from===from?['next','Up next']:['idle','Not started']}
+const P=(c,t)=>`<span class="pill ${c}">${t}</span>`;
+const fmtAcc=a=>a==null?'—':Math.round(a*100)+'%';
+function scoresSorted(){return state.mockScores.slice().sort((a,b)=>a.d.localeCompare(b.d)||(a.id>b.id?1:-1))}
+function mockStats(){const sc=scoresSorted();const out={};for(const f of ['q','v','di','t']){const v=sc.map(s=>s[f]).filter(x=>x!=null&&x!=='').map(Number);
+  out[f]={best:v.length?Math.max(...v):null,avg:v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null,latest:v.length?v[v.length-1]:null,n:v.length}}return out}
+const dash0=v=>v==null?'—':v;
+function dashboard(M){
+  const S=M.S,cal=M.cal;const a=M.aAll;
+  let tq=0,tqa=0,tc=0;for(const id in a.pq)tq+=a.pq[id];for(const id in a.qa){tqa+=a.qa[id];tc+=a.cor[id]||0}
+  const openM=state.mistakes.filter(m=>!m.fixed).length;
+  let h=`<div class="dash">`;
+  // overall progress
+  const blocks=cal.blocks;
+  h+=`<section class="card mb"><h3>Overall progress</h3><p class="sub">Updates automatically from your study log and ticked tasks.</p>
+  <div class="stat-row"><div><b>${hm(a.min)}</b>studied</div><div><b>${tq}</b>questions solved</div><div><b>${tqa>=10?Math.round(tc/tqa*100)+'%':'—'}</b>overall accuracy</div><div><b>${state.mistakes.length}</b>mistakes logged (${openM} open)</div><div><b>${a.mocks} / ${M.ctx.slots.length}</b>mocks taken</div><div><b>${Math.round(M.pct*100)}%</b>plan complete</div></div>
+  <div class="scroll"><table><thead><tr><th>Section</th><th>Study dates</th><th>Progress</th><th class="num">Topics done</th><th class="num">Questions</th><th class="num">Accuracy</th><th class="num">Mock best</th><th class="num">Mock avg</th><th>Status</th></tr></thead><tbody>`;
+  const ms=mockStats();const fk={Quant:'q',Verbal:'v','Data Insights':'di'};
+  for(const sec of SECS){const st=secStats(M,sec);const b=blocks.find(x=>x.s===sec);
+    let status;if(st.done===st.total)status=['on','Complete'];else if(b){const ds=dateStatus(M,b.from,b.to,blocks);status=ds[1]==='Done'?['med','Catching up']:ds}else status=['idle','Not started'];
+    h+=`<tr><td>${chip(sec)}<b>${SECTION[sec]}</b></td><td class="small">${b?nice(b.from)+' – '+nice(b.to):'—'}</td><td><div class="meter"><i style="width:${st.pct}%"></i></div><span class="small">${st.pct}%</span></td><td class="num">${st.done} / ${st.total}</td><td class="num">${st.q}</td><td class="num">${fmtAcc(st.acc)}</td><td class="num">${dash0(ms[fk[sec]].best)}</td><td class="num">${dash0(ms[fk[sec]].avg)}</td><td>${P(status[0],status[1])}</td></tr>`}
+  const mst=M.ctx.slots;const mfrom=cal.range[4]?cal.range[4].from:(mst[1]||S.exam),mto=cal.range[4]?cal.range[4].to:S.exam;
+  h+=`<tr><td><span class="chip mock">Mocks</span><b>Mock tests</b></td><td class="small">${nice(mfrom)} – ${nice(mto)}</td><td><div class="meter"><i style="width:${mst.length?Math.min(100,a.mocks/mst.length*100):0}%"></i></div><span class="small">${mst.length?Math.min(100,Math.round(a.mocks/mst.length*100)):0}%</span></td><td class="num">${a.mocks} / ${mst.length}</td><td class="num">—</td><td class="num">—</td><td class="num">${dash0(ms.t.best)}</td><td class="num">${dash0(ms.t.avg)}</td><td>${a.mocks>=mst.length&&mst.length?P('on','Complete'):P(...dateStatus(M,mfrom,mto,blocks.concat([{from:mfrom,to:mto}])))}</td></tr>`;
+  h+=`</tbody></table></div></section>`;
+  // timeline
+  const rows=[];
+  const act={Quant:'Arithmetic · Algebra · Word problems · Number properties · Statistics, sets & probability',Verbal:'OG foundation chapters · CR all question types · RC all passage types','Data Insights':'Data interpretation · MSR · Table analysis · GI · Two-part analysis · Data sufficiency'};
+  for(const b of blocks)rows.push({from:b.from,to:b.to,f:SECTION[b.s],k:act[b.s],c:SCLS[b.s]});
+  if(cal.range[3])rows.push({from:cal.range[3].from,to:cal.range[3].to,f:'Revision & weak areas',k:'Weakest topics first · mistake log review · timed mixed sets',c:'rev'});
+  if(cal.range[4])rows.push({from:cal.range[4].from,to:cal.range[4].to,f:'Mock tests & final prep',k:`${mst.length} full-length mocks · full error review after each · pacing drills`,c:'mock'});
+  rows.push({from:S.breakStart,to:cal.bEnd,f:'Break',k:'No tasks · reminders paused · streak protected',c:'other'});
+  const buf=cal.days.filter(x=>x.kind==='buffer'),fin=cal.days.filter(x=>x.kind==='final');
+  if(buf.length)rows.push({from:buf[0].d,to:buf[buf.length-1].d,f:'Buffer',k:'Catch-up only if needed',c:'other'});
+  if(fin.length)rows.push({from:fin[0].d,to:fin[fin.length-1].d,f:'Final light review',k:'Formula sheet · mistake log highlights · rest',c:'other'});
+  rows.sort((x,y)=>x.from.localeCompare(y.from));
+  h+=`<section class="card mb"><h3>Study plan timeline</h3><p class="sub">Change any of these dates in Plan check.</p><div class="scroll"><table><thead><tr><th>Dates</th><th>Focus area</th><th>Key activities</th><th>Status</th></tr></thead><tbody>
+  ${rows.map(r=>{const st=dateStatus(M,r.from,r.to,rows);return `<tr><td class="small" style="white-space:nowrap">${nice(r.from)} – ${nice(r.to)}</td><td><span class="chip ${r.c}">&nbsp;</span><b>${esc(r.f)}</b></td><td class="small">${esc(r.k)}</td><td>${P(st[0],st[1])}</td></tr>`}).join('')}</tbody></table></div></section>`;
+  // mocks by subject + progression
+  const tgt={q:+S.tQ,v:+S.tV,di:+S.tD,t:+S.targetScore};
+  const secAvg=[['q','Quant'],['v','Verbal'],['di','DI']].filter(([f])=>ms[f].avg!=null).sort((x,y)=>ms[x[0]].avg-ms[y[0]].avg);
+  const weak=secAvg.length>1?secAvg[0]:null;
+  const gap=f=>{const l=ms[f].latest;if(l==null)return '—';const g=tgt[f]-l;return g>0?`<span class="down">${g} to go</span>`:`<span class="up">${-g} above</span>`};
+  const cell=(f,k)=>`<td class="num">${dash0(ms[f][k])}</td>`;
+  h+=`<div class="grid g2e mb"><section class="card"><h3>Mock performance by section</h3><p class="sub">Sections score 60–90 · total 205–805.</p><div class="scroll"><table><thead><tr><th></th><th class="num">Quant</th><th class="num">Verbal</th><th class="num">DI</th><th class="num">Total</th></tr></thead><tbody>
+   <tr><td>Best</td>${['q','v','di','t'].map(f=>cell(f,'best')).join('')}</tr>
+   <tr><td>Average</td>${['q','v','di','t'].map(f=>cell(f,'avg')).join('')}</tr>
+   <tr><td>Latest</td>${['q','v','di','t'].map(f=>cell(f,'latest')).join('')}</tr>
+   <tr><td>Target</td>${['q','v','di','t'].map(f=>`<td class="num">${tgt[f]}</td>`).join('')}</tr>
+   <tr><td>Gap to target</td>${['q','v','di','t'].map(f=>`<td class="num">${gap(f)}</td>`).join('')}</tr>
+  </tbody></table></div><p class="small" style="margin:10px 0 0">${weak?`Weakest section by average: <b>${weak[1]}</b> (${ms[weak[0]].avg}).`:'Log section scores with each mock to see your weakest section.'}</p></section>`;
+  const sc=scoresSorted();const last=sc.slice(-10);const off=sc.length-last.length;
+  h+=`<section class="card"><h3>Score progression · last 10 mocks</h3><p class="sub">${sc.length?sc.length+' mocks logged.':'No mocks logged yet.'}</p>${last.length?`<div class="scroll"><table><thead><tr><th>#</th><th>Date</th><th class="num">Q</th><th class="num">V</th><th class="num">DI</th><th class="num">Total</th><th class="num">vs prev</th></tr></thead><tbody>
+  ${last.map((m,i)=>{const prev=sc[off+i-1];const d=prev&&m.t!=null&&prev.t!=null?m.t-prev.t:null;return `<tr><td>${off+i+1}</td><td class="small">${nice(m.d)}</td><td class="num">${dash0(m.q)}</td><td class="num">${dash0(m.v)}</td><td class="num">${dash0(m.di)}</td><td class="num"><b>${dash0(m.t)}</b></td><td class="num">${d==null?'<span class="flat">—</span>':d>0?`<span class="up">↑ ${d}</span>`:d<0?`<span class="down">↓ ${-d}</span>`:'<span class="flat">→ 0</span>'}</td></tr>`}).join('')}</tbody></table></div>${scoreChart(sc,+S.targetScore)}`:'<div class="empty">Log a mock in Mock tests and its scores appear here.</div>'}</section></div>`;
+  // error patterns + attention
+  const cnt={};for(const k in EKIND)cnt[k]={Quant:0,Verbal:0,'Data Insights':0,open:0};
+  for(const m of state.mistakes){const c=cnt[m.k]||cnt.mixed;c[TM[m.tp].s]++;if(!m.fixed)c.open++}
+  h+=`<div class="grid g2e"><section class="card"><h3>Error patterns</h3><p class="sub">From your mistake log.</p><div class="scroll"><table><thead><tr><th>Error type</th><th class="num">Quant</th><th class="num">Verbal</th><th class="num">DI</th><th class="num">Total</th><th class="num">Open</th><th>Priority</th></tr></thead><tbody>
+  ${Object.entries(EKIND).map(([k,v])=>{const c=cnt[k];const t=c.Quant+c.Verbal+c['Data Insights'];return `<tr><td><b>${v[0]}</b></td><td class="num">${c.Quant}</td><td class="num">${c.Verbal}</td><td class="num">${c['Data Insights']}</td><td class="num"><b>${t}</b></td><td class="num">${c.open}</td><td>${P(v[1],v[2])}</td></tr>`}).join('')}</tbody></table></div></section>`;
+  const accList=TOPICS.map(t=>({t,acc:accOf(a,t.id)})).filter(x=>x.acc!=null).sort((x,y)=>x.acc-y.acc).slice(0,5);
+  const mList=TOPICS.map(t=>({t,n:state.mistakes.filter(m=>m.tp===t.id&&!m.fixed).length})).filter(x=>x.n>0).sort((x,y)=>y.n-x.n).slice(0,5);
+  const behind=TOPICS.filter(t=>{const b=blocks.find(x=>x.s===t.s);return b&&M.today>b.to&&topicProg(M,t.id).pct<100});
+  h+=`<section class="card"><h3>Needs attention</h3><p class="sub">These get extra time in your plan automatically.</p>
+   <h4 style="margin-top:4px">Lowest accuracy</h4>${accList.length?`<ul class="list-plain">${accList.map(x=>`<li>${chip(x.t.s)}${esc(x.t.g)} · ${esc(x.t.n)} <b>${fmtAcc(x.acc)}</b></li>`).join('')}</ul>`:'<p class="small muted" style="margin:0">Shows once a topic has 10 graded questions.</p>'}
+   <h4>Most open mistakes</h4>${mList.length?`<ul class="list-plain">${mList.map(x=>`<li>${chip(x.t.s)}${esc(x.t.g)} · ${esc(x.t.n)} <b>${x.n}</b></li>`).join('')}</ul>`:'<p class="small muted" style="margin:0">No open mistakes.</p>'}
+   <h4>Unfinished from past blocks</h4>${behind.length?`<p class="small" style="margin:0">${behind.length} topic${behind.length>1?'s':''}: ${behind.slice(0,6).map(t=>esc(t.n)).join(', ')}${behind.length>6?'…':''}</p>`:'<p class="small muted" style="margin:0">Nothing left behind.</p>'}
+  </section></div>`;
+  return h+'</div>';
+}
+
 /* --- Study log --- */
 function entryText(e){
   if(e.t==='practice')return `${e.q} questions in ${esc(topicLabel(e.tp))}${e.c!=null&&e.c!==''?` (${e.c} correct)`:''}`;
@@ -534,7 +620,7 @@ function entryText(e){
   if(e.t==='light')return `${hm(e.m)} light review`;
   return esc(e.t);
 }
-function topicSelect(id,sec,sel){return `<select id="${id}">${TOPICS.filter(t=>!sec||t.s===sec).map(t=>`<option value="${t.id}" ${sel===t.id?'selected':''}>${esc(t.n)}</option>`).join('')}</select>`}
+function topicSelect(id,sec,sel){return `<select id="${id}">${GROUPS.filter(g=>!sec||g.s===sec).map(g=>`<optgroup label="${esc(sec?g.g:SECTION[g.s]+': '+g.g)}">${TOPICS.filter(t=>t.s===g.s&&t.g===g.g).map(t=>`<option value="${t.id}" ${sel===t.id?'selected':''}>${esc(t.n)}</option>`).join('')}</optgroup>`).join('')}</select>`}
 function viewLog(M){
   let h=`<section class="card mb"><h3>Log today’s study</h3><p class="small muted" style="margin-top:-4px">Record what you actually did each day. It counts toward your progress and the rest of the plan adjusts.</p>
   <div class="row"><label class="f">Date<input type="date" id="l-d" value="${M.today}" max="${M.today}"></label>
@@ -618,9 +704,10 @@ function planEditor(M){
    <label class="f">Light-review days<input type="number" min="1" max="5" id="st-light" value="${S.lightDays}"></label>
    <label class="f">Full-length mocks<input type="number" min="2" max="10" id="st-mocks" value="${S.mocks}"></label>
    <label class="f">Timed mixed sets<input type="number" min="0" max="30" id="st-sets" value="${S.timedSets}"></label>
-   <label class="f">Target score<input type="number" min="205" max="805" step="10" id="st-target" value="${S.targetScore}"></label></div>
+   <label class="f">Target total<input type="number" min="205" max="805" step="10" id="st-target" value="${S.targetScore}"></label>
+   <label class="f">Quant target<input type="number" min="60" max="90" id="st-tq" value="${S.tQ}"></label><label class="f">Verbal target<input type="number" min="60" max="90" id="st-tv" value="${S.tV}"></label><label class="f">DI target<input type="number" min="60" max="90" id="st-td" value="${S.tD}"></label></div>
   <h4>Syllabus workload</h4><div class="scroll"><table><thead><tr><th>Topic</th><th>Concept minutes</th><th>Practice questions</th></tr></thead><tbody>
-  ${TOPICS.map(T=>`<tr><td>${chip(T.s)}${esc(T.n)}</td><td><input type="number" min="0" max="2000" step="15" id="tg-c-${T.id}" value="${M.ctx.tg[T.id].c}"></td><td><input type="number" min="0" max="1000" step="5" id="tg-q-${T.id}" value="${M.ctx.tg[T.id].q}"></td></tr>`).join('')}
+  ${TOPICS.map(T=>`<tr><td>${chip(T.s)}${esc(T.g)} · ${esc(T.n)}</td><td><input type="number" min="0" max="2000" step="15" id="tg-c-${T.id}" value="${M.ctx.tg[T.id].c}"></td><td><input type="number" min="0" max="1000" step="5" id="tg-q-${T.id}" value="${M.ctx.tg[T.id].q}"></td></tr>`).join('')}
   </tbody></table></div>
   <div class="row" style="margin-top:16px"><button class="btn primary" data-act="save-plan">Save plan</button><button class="btn ghost" data-act="cancel-plan">Cancel</button><span class="err-text">${esc(ui.planErr)}</span></div></section>`;
 }
@@ -636,43 +723,50 @@ function nextWeeks(M){
 
 /* --- Progress --- */
 function viewProgress(M){
-  const a=M.aAll;
-  let h=`<section class="card mb"><div class="stat-row"><div><b>${hm(a.min)}</b>total studied</div><div><b>${Object.values(a.pq).reduce((s,x)=>s+x,0)}</b>questions done</div><div><b>${Math.round(M.pct*100)}%</b>plan complete</div><div><b>${streak(M)}</b>day streak</div></div></section>`;
-  h+=`<section class="card"><h3>By topic</h3><p class="small muted" style="margin-top:-4px">Accuracy shows after 10 graded questions. Weak topics get more practice and revision automatically.</p><div class="scroll"><table><thead><tr><th>Topic</th><th>Concepts</th><th>Questions</th><th>Accuracy</th><th>Open mistakes</th></tr></thead><tbody>`;
-  for(const sec of SECS){h+=`<tr><td colspan="5">${chip(sec)}<b>${SECTION[sec]}</b></td></tr>`;
-    for(const T of TOPICS.filter(t=>t.s===sec)){const g=M.ctx.tg[T.id],t=M.rAll.t[T.id];const fin=!!state.conceptDone[T.id];const cd=fin?g.c:Math.min(g.c,a.concept[T.id]||0),qd=a.pq[T.id]||0;
-      const acc=t.acc;const cls=acc==null?'':acc<.6?'low':acc<.75?'mid':'high';
-      h+=`<tr><td>${esc(T.n)}</td><td><div class="meter"><i style="width:${g.c?cd/g.c*100:100}%"></i></div><button class="btn ghost sm" data-act="cdone" data-tp="${T.id}">${fin?'Done · undo':'Mark done'}</button></td><td class="small">${qd} / ${g.q}</td><td>${acc==null?'<span class="muted small">—</span>':`<div class="meter ${cls}"><i style="width:${acc*100}%"></i></div><span class="small">${Math.round(acc*100)}%</span>`}</td><td class="small">${t.open||''}</td></tr>`}}
-  return h+`</tbody></table></div></section>`;
+  const a=M.aAll;let h='';
+  for(const sec of SECS){const st=secStats(M,sec);
+    h+=`<section class="card mb"><h3>${chip(sec)}${SECTION[sec]}</h3><p class="sub" style="margin:0 0 12px;color:var(--muted);font-size:.86rem">${st.done} of ${st.total} topics done · ${st.pct}% · ${st.q} questions · accuracy ${fmtAcc(st.acc)}</p>
+    <div class="scroll"><table><thead><tr><th>Sub-topic</th><th>OG ref</th><th>Source</th><th>Status</th><th>Progress</th><th class="num">Questions</th><th class="num">Accuracy</th><th>Mistake pattern</th><th>Concepts</th></tr></thead><tbody>`;
+    for(const g of GROUPS.filter(x=>x.s===sec)){h+=`<tr><td colspan="9"><b>${esc(g.g)}</b></td></tr>`;
+      for(const T of TOPICS.filter(t=>t.s===sec&&t.g===g.g)){const pr=topicProg(M,T.id),acc=accOf(a,T.id),gq=M.ctx.tg[T.id].q;const cls=acc==null?'':acc<.6?'low':acc<.75?'mid':'high';const fin=!!state.conceptDone[T.id];
+        h+=`<tr><td>${esc(T.n)}</td><td class="small" style="white-space:nowrap">${T.ch} · p.${T.pg}</td><td class="small">${esc(T.src)}</td><td>${P(pr.status==='Done'?'on':pr.status==='In progress'?'prog':'idle',pr.status)}</td><td><div class="meter"><i style="width:${pr.pct}%"></i></div><span class="small">${pr.pct}%</span></td><td class="num small">${a.pq[T.id]||0} / ${gq}</td><td class="num">${acc==null?'<span class="muted small">—</span>':`<span class="small">${Math.round(acc*100)}%</span><div class="meter ${cls}"><i style="width:${acc*100}%"></i></div>`}</td><td class="small">${topicPattern(T.id)}</td><td><button class="btn ghost sm" data-act="cdone" data-tp="${T.id}">${fin?'Done · undo':'Mark done'}</button></td></tr>`}}
+    h+=`</tbody></table></div></section>`}
+  return h;
 }
 
 /* --- Mistakes --- */
-const MKIND={concept:'Concept gap',careless:'Careless error',timing:'Ran out of time',misread:'Misread the question'};
 function viewMistakes(M){
   const list=state.mistakes.slice().sort((a,b)=>b.d.localeCompare(a.d));
   const shown=list.filter(m=>ui.mfilter==='all'||(ui.mfilter==='open'?!m.fixed:m.fixed));const open=list.filter(m=>!m.fixed).length;
-  let h=`<section class="card mb"><h3>Add a mistake</h3>
-  <div class="row"><label class="f">Topic<select id="m-tp">${SECS.map(sec=>`<optgroup label="${SECTION[sec]}">${TOPICS.filter(t=>t.s===sec).map(t=>`<option value="${t.id}">${esc(t.n)}</option>`).join('')}</optgroup>`).join('')}</select></label><label class="f">Why it went wrong<select id="m-k">${Object.entries(MKIND).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label></div>
-  <label class="f" style="margin-top:10px">What to remember<textarea id="m-n" rows="2" style="width:100%" placeholder="e.g. Check whether n can be zero before dividing"></textarea></label>
-  <div style="margin-top:10px"><button class="btn primary" data-act="add-mistake">Add to log</button></div>
-  <p class="small muted" style="margin:10px 0 0">Each open mistake adds 10 minutes of targeted revision to its topic.</p></section>
-  <section class="card"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">${open} open</h3><div>${['open','fixed','all'].map(f=>`<button class="btn sm ${ui.mfilter===f?'primary':'ghost'}" data-act="mfilter" data-f="${f}">${f[0].toUpperCase()+f.slice(1)}</button>`).join(' ')}</div></div>`;
-  if(!shown.length)h+=`<div class="empty">${ui.mfilter==='open'?'No open mistakes. Add one whenever a question trips you up.':'Nothing here yet.'}</div>`;
-  else h+='<div class="days-list">'+shown.map(m=>`<div class="dayrow"><div class="dt"><b>${nice(m.d)}</b>${esc(MKIND[m.k]||m.k)}</div><div class="small"><div>${chip(TM[m.tp].s)}<b>${esc(topicLabel(m.tp))}</b></div><div>${esc(m.n)}</div><div style="margin-top:8px"><button class="btn sm" data-act="fix" data-id="${esc(m.id)}">${m.fixed?'Reopen':'Mark fixed'}</button> <button class="btn ghost danger sm" data-act="del-mistake" data-id="${esc(m.id)}">Delete</button></div></div></div>`).join('')+'</div>';
+  const ms=ui.mSec||'Quant';
+  let h=`<section class="card mb"><h3>Log a wrong answer</h3><p class="small muted" style="margin-top:-4px">Fill this in for every question you get wrong. Each open entry adds targeted revision time to its topic.</p>
+  <div class="row"><label class="f">Date<input type="date" id="m-d" value="${M.today}" max="${M.today}"></label><label class="f">Subject<select id="m-sec">${SECS.map(s=>`<option value="${s}" ${ms===s?'selected':''}>${SECTION[s]}</option>`).join('')}</select></label><label class="f">Topic<span id="m-tp-wrap">${topicSelect('m-tp',ms)}</span></label>
+  <label class="f">Error type<select id="m-k">${Object.entries(EKIND).map(([k,v])=>`<option value="${k}">${v[0]}</option>`).join('')}</select></label></div>
+  <div class="grid g2e" style="margin-top:10px"><label class="f">What went wrong<textarea id="m-n" rows="2" style="width:100%" placeholder="e.g. Divided by x without checking x could be 0"></textarea></label>
+  <label class="f">Correct approach / fix<textarea id="m-fx" rows="2" style="width:100%" placeholder="e.g. Factor instead of dividing; test x = 0 separately"></textarea></label></div>
+  <div style="margin-top:10px"><button class="btn primary" data-act="add-mistake">Add to log</button></div></section>
+  <section class="card"><div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px"><h3 style="margin:0">${open} open · ${list.length} total</h3><div>${['open','fixed','all'].map(f=>`<button class="btn sm ${ui.mfilter===f?'primary':'ghost'}" data-act="mfilter" data-f="${f}">${f[0].toUpperCase()+f.slice(1)}</button>`).join(' ')}</div></div>`;
+  if(!shown.length)h+=`<div class="empty">${ui.mfilter==='open'?'No open mistakes.':'Nothing here yet.'}</div>`;
+  else h+='<div class="days-list">'+shown.map(m=>`<div class="dayrow"><div class="dt"><b>${nice(m.d)}</b>${P((EKIND[m.k]||EKIND.mixed)[1],(EKIND[m.k]||EKIND.mixed)[0])}</div><div class="small"><div>${chip(TM[m.tp].s)}<b>${esc(topicLabel(m.tp))}</b></div>${m.n?`<div><span class="muted">What went wrong:</span> ${esc(m.n)}</div>`:''}${m.fx?`<div><span class="muted">Fix:</span> ${esc(m.fx)}</div>`:''}<div style="margin-top:8px"><button class="btn sm" data-act="fix" data-id="${esc(m.id)}">${m.fixed?'Reopen':'Mark fixed'}</button> <button class="btn ghost danger sm" data-act="del-mistake" data-id="${esc(m.id)}">Delete</button></div></div></div>`).join('')+'</div>';
   return h+'</section>';
 }
 
 /* --- Mocks --- */
 function viewMocks(M){
-  const sc=state.mockScores.slice().sort((a,b)=>a.d.localeCompare(b.d));
+  const sc=scoresSorted();
   const upcoming=[];for(const x of M.cal.days){if(x.d<M.startFrom)continue;const ts=x.d===M.startFrom?M.keyed.map(k=>k.t):(M.proj.plan[x.d]||[]);if(ts.some(t=>t.t==='mock'))upcoming.push(x.d)}
   let h=`<div class="grid g2e mb"><section class="card"><h3>Score trend</h3>${scoreChart(sc,+M.S.targetScore)}</section>
   <section class="card"><h3>Upcoming mocks</h3>${upcoming.length?'<div class="small">'+upcoming.map(d=>`<div>${niceW(d)}</div>`).join('')+'</div>':'<p class="muted small">No more mocks scheduled.</p>'}
-  <p class="small muted">You can take a mock earlier than scheduled. Log it below and the remaining mock dates shift back.</p></section></div>`;
+  <p class="small muted">You can take a mock earlier than scheduled. Log it here and the remaining dates shift back.</p></section></div>`;
   h+=`<section class="card mb"><h3>Log a mock test</h3><div class="row">
-  <label class="f">Date<input type="date" id="s-d" value="${M.today}" max="${M.today}"></label><label class="f">Total<span>205–805</span><input type="number" id="s-t" min="205" max="805"></label><label class="f">Quant<span>60–90</span><input type="number" id="s-q" min="60" max="90"></label><label class="f">Verbal<span>60–90</span><input type="number" id="s-v" min="60" max="90"></label><label class="f">DI<span>60–90</span><input type="number" id="s-di" min="60" max="90"></label>
-  <button class="btn primary" data-act="add-score">Save mock</button></div><div id="s-err" class="err-text"></div></section>`;
-  h+=`<section class="card"><h3>All mocks</h3>${sc.length?`<div class="scroll"><table><thead><tr><th>Date</th><th>Total</th><th>Quant</th><th>Verbal</th><th>DI</th><th></th></tr></thead><tbody>${sc.slice().reverse().map(s=>`<tr><td>${nice(s.d)}</td><td><b>${s.t??'—'}</b></td><td>${s.q??'—'}</td><td>${s.v??'—'}</td><td>${s.di??'—'}</td><td><button class="btn ghost danger sm" data-act="del-score" data-id="${esc(s.id)}">Delete</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Your diagnostic mock is the first on the schedule. Its score sets your baseline.</div>'}</section>`;
+  <label class="f">Date<input type="date" id="s-d" value="${M.today}" max="${M.today}"></label>
+  <label class="f">Test source<select id="s-src">${MOCKSRC.map(x=>`<option>${esc(x)}</option>`).join('')}</select></label>
+  <label class="f">Quant<span>60–90</span><input type="number" id="s-q" min="60" max="90"></label><label class="f">Verbal<span>60–90</span><input type="number" id="s-v" min="60" max="90"></label><label class="f">DI<span>60–90</span><input type="number" id="s-di" min="60" max="90"></label><label class="f">Total<span>205–805</span><input type="number" id="s-t" min="205" max="805"></label>
+  <label class="f">Time management OK?<select id="s-tm"><option value="">—</option><option>Yes</option><option>No</option></select></label></div>
+  <div class="grid g2e" style="margin-top:10px"><label class="f">Key mistakes<input id="s-km" style="width:100%"></label><label class="f">Weak areas<input id="s-wa" style="width:100%"></label></div>
+  <label class="f" style="margin-top:10px">Next focus<input id="s-nf" style="width:100%"></label>
+  <div class="row" style="margin-top:12px"><button class="btn primary" data-act="add-score">Save mock</button><span id="s-err" class="err-text"></span></div></section>`;
+  h+=`<section class="card"><h3>Mock test log</h3>${sc.length?`<div class="scroll"><table><thead><tr><th>#</th><th>Date</th><th>Source</th><th class="num">Q</th><th class="num">V</th><th class="num">DI</th><th class="num">Total</th><th class="num">Δ</th><th>Time OK?</th><th>Key mistakes</th><th>Weak areas</th><th>Next focus</th><th></th></tr></thead><tbody>${sc.map((s,i)=>{const pr=sc[i-1];const d=pr&&s.t!=null&&pr.t!=null?s.t-pr.t:null;return `<tr><td>${i+1}</td><td class="small" style="white-space:nowrap">${nice(s.d)}</td><td class="small">${esc(s.src||'—')}</td><td class="num">${dash0(s.q)}</td><td class="num">${dash0(s.v)}</td><td class="num">${dash0(s.di)}</td><td class="num"><b>${dash0(s.t)}</b></td><td class="num">${d==null?'—':d>0?`<span class="up">+${d}</span>`:d<0?`<span class="down">${d}</span>`:'0'}</td><td>${esc(s.tm||'—')}</td><td class="small">${esc(s.km||'')}</td><td class="small">${esc(s.wa||'')}</td><td class="small">${esc(s.nf||'')}</td><td><button class="btn ghost danger sm" data-act="del-score" data-id="${esc(s.id)}">Delete</button></td></tr>`}).reverse().join('')}</tbody></table></div>`:'<div class="empty">Your diagnostic mock is the first on the schedule. Its score sets your baseline.</div>'}</section>`;
   return h;
 }
 function scoreChart(sc,target){
@@ -701,6 +795,7 @@ function viewBackup(){
 
 /* --- actions --- */
 document.addEventListener('change',e=>{
+  if(e.target.id==='m-sec'){ui.mSec=e.target.value;document.getElementById('m-tp-wrap').innerHTML=topicSelect('m-tp',ui.mSec)}
   if(e.target.id==='l-sec'){ui.logSec=e.target.value;document.getElementById('l-tp-wrap').innerHTML=topicSelect('l-tp',ui.logSec)}
 });
 const val=id=>{const el=document.getElementById(id);return el?el.value:''};
@@ -735,14 +830,14 @@ document.addEventListener('click',e=>{
     ui.logMsg='Saved for '+niceW(d)+'.';ui.logOk=true;commit();return}
   if(act==='del-log'){state.log=state.log.filter(x=>x.id!==b.dataset.id);commit();return}
   if(act==='cdone'){const tp=b.dataset.tp;if(state.conceptDone[tp])delete state.conceptDone[tp];else state.conceptDone[tp]=true;commit();return}
-  if(act==='add-mistake'){state.mistakes.push({id:rid(),d:today,tp:val('m-tp'),k:val('m-k'),n:val('m-n').trim().slice(0,600),fixed:false});commit();return}
+  if(act==='add-mistake'){const d=val('m-d');state.mistakes.push({id:rid(),d:isDate(d)&&d<=today?d:today,tp:val('m-tp'),k:val('m-k'),n:val('m-n').trim().slice(0,600),fx:val('m-fx').trim().slice(0,600),fixed:false});commit();return}
   if(act==='fix'){const m=state.mistakes.find(x=>x.id===b.dataset.id);if(m){m.fixed=!m.fixed;commit()}return}
   if(act==='del-mistake'){state.mistakes=state.mistakes.filter(x=>x.id!==b.dataset.id);commit();return}
   if(act==='mfilter'){ui.mfilter=b.dataset.f;render();return}
   if(act==='add-score'){const t=num('s-t'),d=val('s-d');const err=document.getElementById('s-err');
     if(!isDate(d)||d>today||t==null||t<205||t>805){err.textContent='Enter a date up to today and a total between 205 and 805.';return}
     for(const id of ['s-q','s-v','s-di']){const v=num(id);if(v!=null&&(v<60||v>90)){err.textContent='Section scores run from 60 to 90.';return}}
-    state.mockScores.push({id:rid(),d,t,q:num('s-q'),v:num('s-v'),di:num('s-di')});
+    state.mockScores.push({id:rid(),d,t,q:num('s-q'),v:num('s-v'),di:num('s-di'),src:val('s-src'),tm:val('s-tm'),km:val('s-km').trim().slice(0,300),wa:val('s-wa').trim().slice(0,300),nf:val('s-nf').trim().slice(0,300)});
     state.log.push({id:rid(),d,k:'manual|mock|'+rid(),t:'mock',tp:null,m:MOCK_MIN});commit();return}
   if(act==='del-score'){state.mockScores=state.mockScores.filter(x=>x.id!==b.dataset.id);commit();return}
   if(act==='move-exam'){const d=b.dataset.d;if(!confirm('Move your exam to '+niceW(d)+' '+d.slice(0,4)+'? The whole plan will recalculate.'))return;
@@ -752,7 +847,7 @@ document.addEventListener('click',e=>{
   if(act==='save-plan'){
     const n={start:val('st-start'),exam:val('st-exam'),breakStart:val('st-break'),avail:WD.map((_,i)=>Math.max(0,Math.min(600,+val('st-a'+i)||0))),
       bufferDays:Math.max(0,Math.min(14,+val('st-buf')||0)),lightDays:Math.max(1,Math.min(5,+val('st-light')||1)),mocks:Math.max(2,Math.min(10,+val('st-mocks')||2)),
-      timedSets:Math.max(0,Math.min(30,+val('st-sets')||0)),targetScore:Math.max(205,Math.min(805,+val('st-target')||655)),blocks:null,tg:{}};
+      timedSets:Math.max(0,Math.min(30,+val('st-sets')||0)),targetScore:Math.max(205,Math.min(805,+val('st-target')||655)),tQ:Math.max(60,Math.min(90,+val('st-tq')||82)),tV:Math.max(60,Math.min(90,+val('st-tv')||82)),tD:Math.max(60,Math.min(90,+val('st-td')||82)),blocks:null,tg:{}};
     let err='';
     if(!isDate(n.start)||!isDate(n.exam)||!isDate(n.breakStart))err='Fill in the start, exam and break dates.';
     else if(diff(n.start,n.exam)<42)err='Leave at least six weeks between start and exam.';
